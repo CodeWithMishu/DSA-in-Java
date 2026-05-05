@@ -405,3 +405,197 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========== LOADER STYLES ========== */
+
+.loaderPage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(212, 175, 55, 0.18), transparent 62%),
+    radial-gradient(700px 380px at 90% -15%, rgba(108, 161, 255, 0.14), transparent 60%),
+    linear-gradient(180deg, #070b14 0%, #0d1422 100%);
+  padding: 20px;
+}
+
+.loaderContainer {
+  width: 100%;
+  max-width: 500px;
+  display: grid;
+  place-items: center;
+}
+
+.loaderGlass {
+  background: linear-gradient(180deg, rgba(19, 27, 44, 0.85), rgba(14, 21, 35, 0.85));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logoSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.spinner {
+  width: 120px;
+  height: 120px;
+  animation: spin 2.5s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinnerCircle {
+  animation: dash 1.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 282;
+  }
+  50% {
+    stroke-dashoffset: 70;
+  }
+  100% {
+    stroke-dashoffset: 282;
+  }
+}
+
+.loaderText {
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.loadingSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  animation: fadeInStagger 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.step:nth-child(1) { animation-delay: 0.1s; }
+.step:nth-child(2) { animation-delay: 0.3s; }
+.step:nth-child(3) { animation-delay: 0.5s; }
+.step:nth-child(4) { animation-delay: 0.7s; }
+
+@keyframes fadeInStagger {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.step:nth-child(1) .dot { animation-delay: 0s; }
+.step:nth-child(2) .dot { animation-delay: 0.3s; }
+.step:nth-child(3) .dot { animation-delay: 0.6s; }
+.step:nth-child(4) .dot { animation-delay: 0.9s; }
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.progressFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft), var(--gold));
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+  animation: progressFill 2.2s ease-in-out infinite;
+}
+
+@keyframes progressFill {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 80%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.loaderSubtext {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}

@@ -513,7 +513,36 @@ export default function Page() {
     }));
   };
 
-  if (!ready) return <main className="page"><div className="loading">Loading dashboard...</div></main>;
+  if (!ready) return (
+    <main className="page loaderPage">
+      <div className="loaderContainer">
+        <div className="loaderGlass">
+          <div className="logoSpinner">
+            <svg viewBox="0 0 100 100" className="spinner">
+              <defs>
+                <linearGradient id="gradientSpinner" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ffd700" />
+                  <stop offset="100%" stopColor="#ffed4e" />
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" fill="none" stroke="url(#gradientSpinner)" strokeWidth="3" strokeDasharray="282" strokeDashoffset="0" className="spinnerCircle" />
+            </svg>
+            <div className="loaderText">DSA Command Center</div>
+          </div>
+          <div className="loadingSteps">
+            <div className="step"><span className="dot"></span> Initializing dashboard</div>
+            <div className="step"><span className="dot"></span> Loading 207 problems</div>
+            <div className="step"><span className="dot"></span> Syncing your progress</div>
+            <div className="step"><span className="dot"></span> Ready!</div>
+          </div>
+          <div className="progressBar">
+            <div className="progressFill"></div>
+          </div>
+          <p className="loaderSubtext">Powered by Next.js • Git-backed Progress</p>
+        </div>
+      </div>
+    </main>
+  );
 
   return (
     <main className="page">
