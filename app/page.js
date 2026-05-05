@@ -41,7 +41,7 @@ async function saveProgressToGit(completedProblems, completionLog) {
 function convertGitProgressToState(gitProgress, state) {
   if (!gitProgress) return state;
   
-  const { completedProblems, completionLog } = gitProgress;
+  const { completedProblems, completionLog, resources } = gitProgress;
   const progress = { ...state.progress };
   
   // Mark problems as done if they're in completedProblems array
@@ -58,7 +58,8 @@ function convertGitProgressToState(gitProgress, state) {
   return {
     ...state,
     progress,
-    completionLog
+    completionLog,
+    resources: resources || {}
   };
 }
 
@@ -69,7 +70,8 @@ function convertStateToGitProgress(state) {
   
   return {
     completedProblems,
-    completionLog: state.completionLog
+    completionLog: state.completionLog,
+    resources: state.resources || {}
   };
 }
 
@@ -239,6 +241,7 @@ export default function Page() {
   const [topic, setTopic] = useState("");
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
 
   useEffect(() => {
     const auth = sessionStorage.getItem(AUTH_KEY) === "1";
@@ -457,13 +460,20 @@ export default function Page() {
       return;
     }
     if (!selected) return;
+    
+    const notePath = notePathInput.trim();
+    const codePath = codePathInput.trim();
+    
     setState((prev) => ({
       ...prev,
       resources: {
         ...prev.resources,
-        [selected.id]: { notePath: notePathInput.trim(), codePath: codePathInput.trim() }
+        [selected.id]: { notePath, codePath }
       }
     }));
+    
+    setSaveStatus("✓ Paths saved! Reload page to auto-load files.");
+    setTimeout(() => setSaveStatus(""), 3000);
   };
 
   const exportJson = () => {
@@ -691,9 +701,15 @@ export default function Page() {
 
           <section>
             <h5>Map Files (Admin)</h5>
-            <input value={notePathInput} onChange={(e) => setNotePathInput(e.target.value)} placeholder="notes/FastPower.md" />
-            <input value={codePathInput} onChange={(e) => setCodePathInput(e.target.value)} placeholder="FastPower.java" />
+            <div style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: "10px" }}>
+              Format: Relative paths from project root.
+              <br />
+              Examples: <code>Notes/FastPower.md</code>, <code>code/FastPower.java</code>
+            </div>
+            <input value={notePathInput} onChange={(e) => setNotePathInput(e.target.value)} placeholder="Notes/ProblemTitle.md" />
+            <input value={codePathInput} onChange={(e) => setCodePathInput(e.target.value)} placeholder="code/ProblemTitle.java" />
             <button className="btn ghost" onClick={savePaths} disabled={!isAdmin}>Save Paths</button>
+            {saveStatus && <div style={{ color: "var(--green)", marginTop: "8px", fontSize: "0.9rem" }}>{saveStatus}</div>}
           </section>
         </aside>
       </section>

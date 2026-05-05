@@ -122,7 +122,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { completedProblems, completionLog } = body;
+    const { completedProblems, completionLog, resources } = body;
 
     if (!Array.isArray(completedProblems) || !Array.isArray(completionLog)) {
       return Response.json(
@@ -134,6 +134,7 @@ export async function POST(request) {
     const progress = {
       completedProblems,
       completionLog,
+      resources: resources || {},
       lastSyncedAt: new Date().toISOString(),
       syncedDevices: [getDeviceId()]
     };
@@ -149,7 +150,7 @@ export async function POST(request) {
       progress,
       syncedAt: new Date().toISOString(),
       mode: 'git-backed',
-      message: `Progress saved: ${completedProblems.length} problems completed`
+      message: `Progress saved: ${completedProblems.length} problems, ${Object.keys(resources || {}).length} files mapped`
     });
   } catch (error) {
     console.error('Progress save error:', error);
