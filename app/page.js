@@ -11,6 +11,20 @@ export default function Home() {
 
   useEffect(() => {
     const redirect = async () => {
+      const code =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("code")
+          : null;
+
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        window.history.replaceState(null, "", "/");
+        if (!error) {
+          window.location.replace("/dashboard");
+          return;
+        }
+      }
+
       if (typeof window !== "undefined" && window.location.hash.includes("access_token")) {
         const {
           data: { session },
@@ -18,7 +32,7 @@ export default function Home() {
 
         window.history.replaceState(null, "", "/");
         if (session) {
-          router.replace("/dashboard");
+          window.location.replace("/dashboard");
           return;
         }
       }

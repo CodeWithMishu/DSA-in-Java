@@ -9,3 +9,18 @@ yarn-error.log*
 pnpm-debug.log*
 .env.local
 .env.local.backup
+
+# Added by GitGuard (Node.js, Next.js, React)
+# Environment files contain secrets, API keys, and database credentials that should never be committed
+.env
+# Environment-specific local files may contain sensitive overrides
+.env.*.local
+# Development environment secrets should not be shared
+.env.development.local
+# Production secrets must never be committed to version control
+.env.production.local
+dist/
+build/
+coverage/
+# Test environment secrets should not be committed
+.env.test.local

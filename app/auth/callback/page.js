@@ -1,20 +1,29 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import "../../auth.css";
 
 export default function AuthCallbackPage() {
-  const router = useRouter();
   const [message, setMessage] = useState("Finishing sign in...");
 
   useEffect(() => {
+    let cancelled = false;
+
+    const goToDashboard = () => {
+      window.history.replaceState(null, "", "/auth/callback");
+      window.location.replace("/dashboard");
+    };
+
+    const goToAuth = (error) => {
+      window.location.replace(`/auth?error=${encodeURIComponent(error)}`);
+    };
+
     const finishSignIn = async () => {
       const searchParams = new URLSearchParams(window.location.search);
       const error = searchParams.get("error") || searchParams.get("error_description");
       if (error) {
-        router.replace(`/auth?error=${encodeURIComponent(error)}`);
+        goToAuth(error);
         return;
       }
 
@@ -22,20 +31,25 @@ export default function AuthCallbackPage() {
       if (code) {
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
         if (exchangeError) {
-          router.replace(`/auth?error=${encodeURIComponent(exchangeError.message)}`);
+          goToAuth(exchangeError.message);
           return;
         }
       } else {
         await supabase.auth.getSession();
       }
 
-      window.history.replaceState(null, "", "/auth/callback");
-      setMessage("Opening your dashboard...");
-      router.replace("/dashboard");
+      if (!cancelled) {
+        setMessage("Opening your dashboard...");
+        goToDashboard();
+      }
     };
 
     finishSignIn();
-  }, [router]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <main className="authPage">

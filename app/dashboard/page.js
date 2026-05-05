@@ -1,77 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import db from "../../data/problems.json";
-
-const ADMIN_USER = "codewithmishu";
-const ADMIN_PASSWORD = "Mishu@2005";
-const AUTH_KEY = "dsa_next_admin_auth";
-
-// Git-backed progress storage functions
-async function loadProgressFromGit() {
-  try {
-    const res = await fetch("/api/progress", { cache: "no-store" });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.success) return null;
-    
-    const { completedProblems, completionLog } = data.progress;
-    return { completedProblems, completionLog };
-  } catch (err) {
-    console.warn("Failed to load progress from git:", err);
-    return null;
-  }
-}
-
-async function saveProgressToGit(completedProblems, completionLog) {
-  try {
-    const res = await fetch("/api/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedProblems, completionLog })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.warn("Failed to save progress to git:", err);
-    return null;
-  }
-}
-
-function convertGitProgressToState(gitProgress, state) {
-  if (!gitProgress) return state;
-  
-  const { completedProblems, completionLog } = gitProgress;
-  const progress = { ...state.progress };
-  
-  // Mark problems as done if they're in completedProblems array
-  for (const problemId of completedProblems) {
-    if (progress[problemId]) {
-      progress[problemId] = {
-        ...progress[problemId],
-        status: "done",
-        completedAt: progress[problemId].completedAt || new Date().toISOString()
-      };
-    }
-  }
-  
-  return {
-    ...state,
-    progress,
-    completionLog
-  };
-}
-
-function convertStateToGitProgress(state) {
-  const completedProblems = Object.entries(state.progress)
-    .filter(([_, item]) => item.status === "done")
-    .map(([id, _]) => id);
-  
-  return {
-    completedProblems,
-    completionLog: state.completionLog
-  };
-}
+import {
+  getCompletionLog,
+  getLeaderboard,
+  getUserProgress,
+  logCompletion,
+  saveProblemWorkspace,
+  signOut,
+  supabase,
+  updateUserProfile,
+} from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 function toDayKey(dateObj) {
   const y = dateObj.getFullYear();
@@ -86,7 +28,15 @@ function defaultProgress() {
     out[p.id] = {
       status: "not-started",
       updatedAt: null,
-      completedAt: null
+      completedAt: null,
+      notes: "",
+      solutionCode: "",
+      solutionLanguage: "java",
+      bookmarked: false,
+      mistakeJournal: "",
+      reviewIntervalDays: null,
+      reviseAt: null,
+      attemptCount: 0
     };
   }
   return out;
@@ -114,7 +64,15 @@ function normalizeState(raw) {
         progress[p.id] = {
           status: item.status || "not-started",
           updatedAt: item.updatedAt || null,
-          completedAt: item.completedAt || null
+          completedAt: item.completedAt || null,
+          notes: item.notes || "",
+          solutionCode: item.solutionCode || "",
+          solutionLanguage: item.solutionLanguage || "java",
+          bookmarked: Boolean(item.bookmarked),
+          mistakeJournal: item.mistakeJournal || "",
+          reviewIntervalDays: item.reviewIntervalDays || null,
+          reviseAt: item.reviseAt || null,
+          attemptCount: item.attemptCount || 0
         };
       }
     }
@@ -124,6 +82,37 @@ function normalizeState(raw) {
     progress,
     completionLog: Array.isArray(raw.completionLog) ? raw.completionLog : [],
     selectedProblemId: raw.selectedProblemId || base.selectedProblemId
+  };
+}
+
+function rowToProgress(row) {
+  return {
+    status: row.status || "not-started",
+    updatedAt: row.updated_at || null,
+    completedAt: row.completed_at || null,
+    notes: row.notes || "",
+    solutionCode: row.solution_code || "",
+    solutionLanguage: row.solution_language || "java",
+    bookmarked: Boolean(row.bookmarked),
+    mistakeJournal: row.mistake_journal || "",
+    reviewIntervalDays: row.review_interval_days || null,
+    reviseAt: row.revise_at || null,
+    attemptCount: row.attempt_count || 0
+  };
+}
+
+function progressToSupabase(item) {
+  return {
+    status: item.status,
+    notes: item.notes || "",
+    solution_code: item.solutionCode || "",
+    solution_language: item.solutionLanguage || "java",
+    bookmarked: Boolean(item.bookmarked),
+    mistake_journal: item.mistakeJournal || "",
+    review_interval_days: item.reviewIntervalDays || null,
+    revise_at: item.reviseAt || null,
+    attempt_count: item.attemptCount || 0,
+    completed_at: item.completedAt || null
   };
 }
 
@@ -218,17 +207,17 @@ async function fetchApi(url) {
 }
 
 export default function Page() {
+  const router = useRouter();
+  const { user, profile, loading: authLoading } = useAuth();
   const [ready, setReady] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [loginError, setLoginError] = useState("");
-  const [loginUser, setLoginUser] = useState("");
-  const [loginPass, setLoginPass] = useState("");
 
   const [state, setState] = useState(() => normalizeState(null));
   const [readmeText, setReadmeText] = useState("");
   const [noteContent, setNoteContent] = useState("No note file loaded.");
   const [codeContent, setCodeContent] = useState("No solution file loaded.");
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [saveStatus, setSaveStatus] = useState("");
+  const [leaderboardOptIn, setLeaderboardOptIn] = useState(false);
 
   const [difficulty, setDifficulty] = useState("");
   const [iteration, setIteration] = useState("");
@@ -237,34 +226,44 @@ export default function Page() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const auth = sessionStorage.getItem(AUTH_KEY) === "1";
-    setIsAdmin(auth);
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/auth");
+      return;
+    }
 
-    // Load progress from git-backed storage
     const load = async () => {
-      const gitProgress = await loadProgressFromGit();
       const base = normalizeState(null);
-      if (gitProgress) {
-        setState(convertGitProgressToState(gitProgress, base));
-      } else {
-        setState(base);
+      const [{ data: progressRows }, { data: logRows }, { data: leaderboardRows }] = await Promise.all([
+        getUserProgress(user.id),
+        getCompletionLog(user.id),
+        getLeaderboard(),
+      ]);
+
+      if (Array.isArray(progressRows)) {
+        for (const row of progressRows) {
+          if (base.progress[row.problem_id]) {
+            base.progress[row.problem_id] = rowToProgress(row);
+          }
+        }
       }
+
+      base.completionLog = Array.isArray(logRows)
+        ? logRows.map((row) => row.completed_at).filter(Boolean)
+        : [];
+
+      setLeaderboard(Array.isArray(leaderboardRows) ? leaderboardRows : []);
+      setLeaderboardOptIn(Boolean(profile?.opt_in_leaderboard));
+      setState(base);
       setReady(true);
     };
 
     load();
-  }, []);
+  }, [authLoading, router, user]);
 
-  // Auto-save progress to git whenever state changes
   useEffect(() => {
-    if (!ready) return;
-    const timeout = setTimeout(() => {
-      const gitProgress = convertStateToGitProgress(state);
-      saveProgressToGit(gitProgress.completedProblems, gitProgress.completionLog);
-    }, 1000); // Debounce: save after 1 second of inactivity
-    
-    return () => clearTimeout(timeout);
-  }, [state, ready]);
+    setLeaderboardOptIn(Boolean(profile?.opt_in_leaderboard));
+  }, [profile?.opt_in_leaderboard]);
 
   useEffect(() => {
     fetchApi("/api/readme").then((data) => {
@@ -341,15 +340,59 @@ export default function Page() {
     return { total, done, inProgress, byDiff, streak, last7, velocity, byTopic };
   }, [state.progress, state.completionLog]);
 
+  const profileStats = useMemo(() => {
+    const strongest = [...stats.byTopic].sort((a, b) => b.ratio - a.ratio)[0];
+    const weakest = [...stats.byTopic]
+      .filter((t) => t.total > 0 && t.done < t.total)
+      .sort((a, b) => a.ratio - b.ratio)[0];
+
+    return {
+      strongestTopic: strongest?.topic || "Not enough data",
+      weakestTopic: weakest?.topic || "All caught up",
+      solvedPercent: pct(stats.done, stats.total)
+    };
+  }, [stats]);
+
+  const dailyQueue = useMemo(() => {
+    const now = Date.now();
+    const due = db.problems.filter((p) => {
+      const item = state.progress[p.id];
+      return item?.reviseAt && new Date(item.reviseAt).getTime() <= now;
+    });
+    const bookmarked = db.problems.filter((p) => state.progress[p.id]?.bookmarked);
+    const weakTopic = profileStats.weakestTopic;
+    const weak = db.problems.filter((p) => {
+      return p.topic === weakTopic && statusOf(state.progress, p.id) !== "done";
+    });
+    const fresh = db.problems.filter((p) => statusOf(state.progress, p.id) === "not-started");
+    const seen = new Set();
+
+    return [...due, ...bookmarked, ...weak, ...fresh].filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    }).slice(0, 5);
+  }, [profileStats.weakestTopic, state.progress]);
+
   const readmeSnippet = useMemo(() => {
     if (!selected) return "";
     return extractReadmeSnippet(readmeText, selected.title);
   }, [readmeText, selected]);
 
+  const selectedProgress = selected
+    ? state.progress[selected.id] || defaultProgress()[selected.id]
+    : null;
+
   useEffect(() => {
     if (!selected) return;
 
     const load = async () => {
+      const { data: officialContent } = await supabase
+        .from("official_problem_content")
+        .select("official_notes, official_solution_code")
+        .eq("problem_id", String(selected.id))
+        .eq("review_status", "published")
+        .maybeSingle();
       const linked = extractLinkedFiles(readmeSnippet);
       const slug = slugify(selected.title);
       const pascal = pascalCase(selected.title);
@@ -374,8 +417,10 @@ export default function Page() {
         `${slug}.java`
       ].filter(Boolean);
 
-      let noteLoaded = false;
+      let noteLoaded = Boolean(officialContent?.official_notes);
+      if (noteLoaded) setNoteContent(officialContent.official_notes);
       for (const p of noteCandidates) {
+        if (noteLoaded) break;
         const data = await fetchApi(`/api/file?path=${encodeURIComponent(p)}`);
         if (data?.ok) {
           setNoteContent(data.content);
@@ -387,8 +432,10 @@ export default function Page() {
         setNoteContent("No detailed note has been published for this problem yet.");
       }
 
-      let codeLoaded = false;
+      let codeLoaded = Boolean(officialContent?.official_solution_code);
+      if (codeLoaded) setCodeContent(officialContent.official_solution_code);
       for (const p of codeCandidates) {
+        if (codeLoaded) break;
         const data = await fetchApi(`/api/file?path=${encodeURIComponent(p)}`);
         if (data?.ok) {
           setCodeContent(data.content);
@@ -404,46 +451,91 @@ export default function Page() {
     load();
   }, [selected, readmeSnippet]);
 
-  const onLogin = () => {
-    if (loginUser === ADMIN_USER && loginPass === ADMIN_PASSWORD) {
-      sessionStorage.setItem(AUTH_KEY, "1");
-      setIsAdmin(true);
-      setShowLogin(false);
-      setLoginError("");
-      setLoginUser("");
-      setLoginPass("");
-      return;
-    }
-    setLoginError("Invalid username or password.");
-  };
-
-  const logout = () => {
-    sessionStorage.removeItem(AUTH_KEY);
-    setIsAdmin(false);
-  };
-
   const setProblemStatus = (problemId, nextStatus) => {
-    if (!isAdmin) {
-      setShowLogin(true);
-      return;
-    }
+    if (!user) return;
+    let itemToSave = null;
 
     setState((prev) => {
       const current = statusOf(prev.progress, problemId);
       const updated = { ...prev.progress };
       const nowIso = new Date().toISOString();
       const old = updated[problemId] || { status: "not-started", updatedAt: null, completedAt: null };
-      updated[problemId] = {
+      const nextItem = {
         ...old,
         status: nextStatus,
         updatedAt: nowIso,
-        completedAt: nextStatus === "done" && current !== "done" ? nowIso : old.completedAt
+        completedAt: nextStatus === "done" && current !== "done" ? nowIso : old.completedAt,
+        attemptCount: nextStatus === "in-progress" && current !== "in-progress"
+          ? (old.attemptCount || 0) + 1
+          : old.attemptCount || 0
       };
+      updated[problemId] = nextItem;
+      itemToSave = nextItem;
       const log = [...prev.completionLog];
       if (nextStatus === "done" && current !== "done") log.push(nowIso);
 
       return { ...prev, progress: updated, completionLog: log };
     });
+
+    setTimeout(async () => {
+      if (!itemToSave) return;
+      const { error } = await saveProblemWorkspace(user.id, problemId, progressToSupabase(itemToSave));
+      if (nextStatus === "done") await logCompletion(user.id, String(problemId));
+      setSaveStatus(error ? "Save failed. Run the feature SQL if this is your first upgrade." : "Saved");
+    }, 0);
+  };
+
+  const updateProblemWorkspace = (updates) => {
+    if (!selected || !user) return;
+    const problemId = selected.id;
+    let itemToSave = null;
+
+    setState((prev) => {
+      const current = prev.progress[problemId] || defaultProgress()[problemId];
+      const nextItem = {
+        ...current,
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+      itemToSave = nextItem;
+
+      return {
+        ...prev,
+        progress: {
+          ...prev.progress,
+          [problemId]: nextItem
+        }
+      };
+    });
+
+    window.clearTimeout(updateProblemWorkspace.timeoutId);
+    updateProblemWorkspace.timeoutId = window.setTimeout(async () => {
+      if (!itemToSave) return;
+      const { error } = await saveProblemWorkspace(user.id, problemId, progressToSupabase(itemToSave));
+      setSaveStatus(error ? "Save failed. Run the feature SQL if this is your first upgrade." : "Saved");
+    }, 700);
+  };
+
+  const setReviewInterval = (days) => {
+    const reviseAt = new Date();
+    reviseAt.setDate(reviseAt.getDate() + days);
+    updateProblemWorkspace({
+      reviewIntervalDays: days,
+      reviseAt: reviseAt.toISOString()
+    });
+  };
+
+  const toggleLeaderboard = async () => {
+    if (!user) return;
+    const next = !leaderboardOptIn;
+    setLeaderboardOptIn(next);
+    const { error } = await updateUserProfile(user.id, { opt_in_leaderboard: next });
+    setSaveStatus(error ? "Leaderboard opt-in failed. Run the feature SQL first." : "Saved");
+  };
+
+  const logout = async () => {
+    await signOut();
+    router.replace("/auth");
   };
 
   const exportJson = () => {
@@ -481,10 +573,6 @@ export default function Page() {
   };
 
   const resetAll = () => {
-    if (!isAdmin) {
-      setShowLogin(true);
-      return;
-    }
     if (!confirm("Reset all progress?")) return;
     setState((prev) => ({
       ...prev,
@@ -493,7 +581,7 @@ export default function Page() {
     }));
   };
 
-  if (!ready) return (
+  if (authLoading || !ready) return (
     <main className="page loaderPage">
       <div className="loaderContainer">
         <div className="loaderGlass">
@@ -518,7 +606,7 @@ export default function Page() {
           <div className="progressBar">
             <div className="progressFill"></div>
           </div>
-          <p className="loaderSubtext">Powered by Next.js • Git-backed Progress</p>
+          <p className="loaderSubtext">Powered by Next.js • Supabase Sync</p>
         </div>
       </div>
     </main>
@@ -530,26 +618,28 @@ export default function Page() {
         <div>
           <h1>DSA Command Center (Next.js)</h1>
           <p>
-            JSON database powered tracker, optimized for Vercel deployment. No paid service required.
+            Personal DSA workspace with progress, notes, code, revision, and topic analytics.
           </p>
           <div className="chips">
             <span>DB: data/problems.json</span>
             <span>Total: {stats.total}</span>
             <span>Easy/Medium/Hard: 38/131/38</span>
-            <span>Admin lock enabled</span>
+            <span>Signed in as {user?.email || "user"}</span>
           </div>
         </div>
-        <div className="adminBox">
-          <div className="status">{isAdmin ? "Unlocked (Admin)" : "Locked (Viewer)"}</div>
+        <div className="accountBox">
+          <div className="status">User workspace</div>
           <div className="row">
-            <button className="btn" onClick={() => setShowLogin(true)}>{isAdmin ? "Re-Login" : "Admin Login"}</button>
-            <button className="btn ghost" onClick={logout} disabled={!isAdmin}>Logout</button>
             <button className="btn ghost" onClick={exportJson}>Export JSON</button>
             <label className="btn ghost fileBtn">
               Import JSON
               <input type="file" accept="application/json" onChange={importJson} />
             </label>
-            <button className="btn danger" onClick={resetAll} disabled={!isAdmin}>Reset</button>
+            <button className="btn danger" onClick={resetAll}>Reset</button>
+            {profile?.role === "admin" && (
+              <button className="btn ghost" onClick={() => router.push("/admin")}>Admin</button>
+            )}
+            <button className="btn ghost" onClick={logout}>Logout</button>
           </div>
         </div>
       </section>
@@ -561,6 +651,60 @@ export default function Page() {
         <article className="card stat"><h3>Current Streak</h3><div>{stats.streak}d</div></article>
         <article className="card stat"><h3>Last 7 Days</h3><div>{stats.last7}</div></article>
         <article className="card stat"><h3>Velocity</h3><div>{stats.velocity}/wk</div></article>
+      </section>
+
+      <section className="workspaceGrid">
+        <article className="card profileCard">
+          <div>
+            <h3>Your Profile</h3>
+            <p>{profile?.full_name || user?.email || "Learner"}</p>
+          </div>
+          <div className="profileStats">
+            <span>{profileStats.solvedPercent}% solved</span>
+            <span>Strongest: {profileStats.strongestTopic}</span>
+            <span>Focus: {profileStats.weakestTopic}</span>
+          </div>
+          <label className="toggleRow">
+            <input type="checkbox" checked={leaderboardOptIn} onChange={toggleLeaderboard} />
+            <span>Show me on public leaderboard</span>
+          </label>
+        </article>
+
+        <article className="card queueCard">
+          <div className="sectionTitle">
+            <h3>Daily Practice Queue</h3>
+            <span>{dailyQueue.length} picks</span>
+          </div>
+          <div className="queueList">
+            {dailyQueue.map((p) => (
+              <button
+                key={p.id}
+                className="queueItem"
+                onClick={() => setState((prev) => ({ ...prev, selectedProblemId: p.id }))}
+              >
+                <strong>#{p.id}</strong>
+                <span>{p.title}</span>
+                <small>{p.topic}</small>
+              </button>
+            ))}
+          </div>
+        </article>
+
+        <article className="card leaderboardCard">
+          <div className="sectionTitle">
+            <h3>Leaderboard</h3>
+            <span>Opt-in</span>
+          </div>
+          <div className="leaderRows">
+            {leaderboard.length ? leaderboard.slice(0, 5).map((row, index) => (
+              <div className="leaderRow" key={row.id}>
+                <span>#{index + 1}</span>
+                <strong>{row.display_name}</strong>
+                <small>{row.solved} solved</small>
+              </div>
+            )) : <p className="emptyText">No opt-in learners yet.</p>}
+          </div>
+        </article>
       </section>
 
       <section className="stats difficulty">
@@ -650,42 +794,102 @@ export default function Page() {
         </section>
 
         <aside className="card detailPanel">
-          <h3>Problem Detail</h3>
-          <h4>{selected ? `#${selected.id} ${selected.title}` : "Select problem"}</h4>
-          <div className="detailMeta">{selected?.topic} | {selected?.platform} | <a href={selected?.url} target="_blank">Open Link</a></div>
+          <div className="detailHeader">
+            <div>
+              <h3>Problem Workspace</h3>
+              <h4>{selected ? `#${selected.id} ${selected.title}` : "Select problem"}</h4>
+              <div className="detailMeta">{selected?.topic} | {selected?.platform} | <a href={selected?.url} target="_blank">Open Link</a></div>
+            </div>
+            <button
+              className={`bookmarkBtn ${selectedProgress?.bookmarked ? "active" : ""}`}
+              onClick={() => updateProblemWorkspace({ bookmarked: !selectedProgress?.bookmarked })}
+            >
+              {selectedProgress?.bookmarked ? "Bookmarked" : "Bookmark"}
+            </button>
+          </div>
+
+          <div className="workspaceStats">
+            <span>Status: {selectedProgress?.status || "not-started"}</span>
+            <span>Attempts: {selectedProgress?.attemptCount || 0}</span>
+            <span>{saveStatus || "Ready"}</span>
+          </div>
+
+          <section className="editorSection">
+            <div className="sectionTitle">
+              <h5>Personal Notes</h5>
+              <span>Private</span>
+            </div>
+            <textarea
+              value={selectedProgress?.notes || ""}
+              onChange={(e) => updateProblemWorkspace({ notes: e.target.value })}
+              placeholder="Write your intuition, edge cases, complexity, and recall hints here."
+            />
+          </section>
+
+          <section className="editorSection">
+            <div className="sectionTitle">
+              <h5>Code Solution</h5>
+              <select
+                value={selectedProgress?.solutionLanguage || "java"}
+                onChange={(e) => updateProblemWorkspace({ solutionLanguage: e.target.value })}
+              >
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+              </select>
+            </div>
+            <textarea
+              className="codeEditor"
+              value={selectedProgress?.solutionCode || ""}
+              onChange={(e) => updateProblemWorkspace({ solutionCode: e.target.value })}
+              placeholder="Paste or write your accepted solution here."
+            />
+          </section>
+
+          <section className="editorSection">
+            <div className="sectionTitle">
+              <h5>Mistake Journal</h5>
+              <span>Review fuel</span>
+            </div>
+            <textarea
+              value={selectedProgress?.mistakeJournal || ""}
+              onChange={(e) => updateProblemWorkspace({ mistakeJournal: e.target.value })}
+              placeholder="What went wrong? Missed edge case, wrong pattern, time complexity, implementation bug..."
+            />
+          </section>
 
           <section>
-            <h5>Algorithm / Notes from README.md</h5>
+            <div className="sectionTitle">
+              <h5>Revision Scheduler</h5>
+              <span>{selectedProgress?.reviseAt ? new Date(selectedProgress.reviseAt).toLocaleDateString() : "Not scheduled"}</span>
+            </div>
+            <div className="revisionButtons">
+              {[1, 3, 7, 21].map((days) => (
+                <button key={days} className="btn ghost" onClick={() => setReviewInterval(days)}>
+                  {days}d
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h5>Published README Notes</h5>
             <pre>{readmeSnippet}</pre>
           </section>
 
           <section>
-            <h5>Detailed Notes File</h5>
+            <h5>Published Detailed Notes</h5>
             <pre>{noteContent}</pre>
           </section>
 
           <section>
-            <h5>Solution File</h5>
+            <h5>Published Solution</h5>
             <pre>{codeContent}</pre>
           </section>
 
         </aside>
       </section>
-
-      {showLogin && (
-        <div className="overlay" onClick={() => setShowLogin(false)}>
-          <div className="login card" onClick={(e) => e.stopPropagation()}>
-            <h3>Admin Login</h3>
-            <input placeholder="username" value={loginUser} onChange={(e) => setLoginUser(e.target.value)} />
-            <input placeholder="password" type="password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} />
-            <div className="error">{loginError}</div>
-            <div className="row">
-              <button className="btn" onClick={onLogin}>Login</button>
-              <button className="btn ghost" onClick={() => setShowLogin(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

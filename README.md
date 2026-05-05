@@ -104,7 +104,7 @@ npm install -g vercel
 vercel --prod
 ```
 
-**Note:** `vercel.json` auto-configures the build and output directory.
+**Note:** `vercel.json` keeps Vercel on the Next.js framework preset.
 
 ### Database design used
 
@@ -113,31 +113,26 @@ vercel --prod
 - Contains all 207 DSA problems with metadata (topic, difficulty, platform, etc.)
 - Static reference, auto-generated from problem definitions
 
-#### Progress Sync (Git-Backed)
-- **Storage**: `progress/latest.json` (version-controlled in git)
-- **Auto-commit**: Every progress update is committed to git with device info and timestamp
-- **Cross-device sync**: Pull latest progress from git before reading (automatic)
-- **Device tracking**: Records which devices have synced (last 5 devices kept)
-- **Timestamp tracking**: Each sync records sync time and last modification
+#### Progress Sync (Supabase)
+- **Storage**: `user_progress` and `completion_log` tables in Supabase
+- **Per-user state**: Every signed-in learner gets private progress, notes, code, bookmarks, attempts, and revision dates
+- **Cross-device sync**: Any device using the same login sees the same workspace
+- **Leaderboard**: Users can opt in from the dashboard profile card
 
 **How it works:**
 1. User marks a problem as "done" on Device A
-2. Frontend POSTs to `/api/progress` with updated state
-3. API saves to `progress/latest.json` and commits: `chore: sync progress [42 problems] via device-abc123 at 2026-05-05T10:30:00Z`
+2. Dashboard upserts that row into Supabase for the current user
+3. Completion is recorded in `completion_log` for streaks and activity stats
 4. User switches to Device B (different browser/machine)
-5. Frontend GETs `/api/progress`
-6. API runs `git pull` to fetch latest changes, then serves synced state
-7. All devices stay in sync via git!
+5. Dashboard loads the same user's rows from Supabase
+6. All devices stay in sync through the logged-in account
 
 **Features:**
-- ✅ Version-controlled snapshots in git history
-- ✅ Automatic device identification and tracking
-- ✅ Cross-device sync without external DB
-- ✅ Full audit trail (every change committed)
-- ✅ Portable (entire progress history is in git)
-- ✅ Offline-first (saves locally, syncs when connected)
-
-**Note:** Git commands are non-blocking; if your repo isn't initialized or git is unavailable, the API gracefully falls back and logs the error (progress still saves locally).
+- ✅ Private per-user progress
+- ✅ Personal notes and code solution editor
+- ✅ Bookmarks and revision scheduler
+- ✅ Mistake journal and attempt counts
+- ✅ Profile analytics and opt-in leaderboard
 
 #### Backup & Export
 - Click "Export Progress" in dashboard to download JSON snapshot
