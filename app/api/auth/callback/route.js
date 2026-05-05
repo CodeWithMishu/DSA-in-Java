@@ -10,7 +10,7 @@ export async function GET(request) {
   }
 
   if (code) {
-    return NextResponse.redirect(new URL(`/dashboard`, request.url));
+    return NextResponse.redirect(new URL(`/auth/callback?code=${encodeURIComponent(code)}`, request.url));
   }
 
   return NextResponse.redirect(new URL("/auth", request.url));
