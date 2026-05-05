@@ -66,11 +66,45 @@ npm run build
 npm run start
 ```
 
-### Deploy on Vercel
+### Deploy on Vercel (with Custom Domain)
 
-1. Import this GitHub repo in Vercel
-2. Framework preset: `Next.js`
-3. Deploy (no external DB env vars required)
+#### Option 1: Auto-Deploy from GitHub (Recommended)
+
+1. **Connect your repo:**
+   - Go to [vercel.com](https://vercel.com) and sign in
+   - Click "Add New → Project"
+   - Select GitHub repository: `CodeWithMishu/DSA-in-Java`
+   - Framework preset: `Next.js`
+   - Click "Deploy"
+
+2. **Configure custom domain (codewithmishu.in subdomain):**
+   - In Vercel dashboard → Project Settings → Domains
+   - Click "Add Domain"
+   - Enter: `dsa.codewithmishu.in` (or your preferred subdomain)
+   - Vercel shows DNS records to add
+
+3. **Update your domain's DNS:**
+   - Go to your domain registrar (GoDaddy, Namecheap, etc.)
+   - Add DNS records from Vercel:
+     - **CNAME record:** `dsa.codewithmishu.in` → points to Vercel
+     - Or **A record** if Vercel provides IP
+   - Wait 5-30 minutes for DNS propagation
+
+4. **Verify in Vercel:**
+   - DNS should auto-verify
+   - Your app is now live at `https://dsa.codewithmishu.in`
+
+#### Option 2: Manual Deployment (if needed)
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy
+vercel --prod
+```
+
+**Note:** `vercel.json` auto-configures the build and output directory.
 
 ### Database design used
 
