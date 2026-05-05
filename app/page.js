@@ -367,6 +367,8 @@ export default function Page() {
       const noteCandidates = [
         map.notePath,
         ...linked.filter((p) => /\.md$/i.test(p)),
+        `Notes/${pascal}.md`,
+        `Notes/${slug}.md`,
         `notes/${pascal}.md`,
         `notes/${slug}.md`,
         `${pascal}.md`,
@@ -376,6 +378,8 @@ export default function Page() {
       const codeCandidates = [
         map.codePath,
         ...linked.filter((p) => /\.(java|txt)$/i.test(p)),
+        `code/${pascal}.java`,
+        `code/${slug}.java`,
         `${pascal}.java`,
         `solutions/${pascal}.java`,
         `src/${pascal}.java`,
@@ -392,7 +396,8 @@ export default function Page() {
         }
       }
       if (!noteLoaded) {
-        setNoteContent("No note file found automatically. Add path and click Save Paths.");
+        const attemptedPaths = noteCandidates.slice(0, 3).join(", ");
+        setNoteContent(`No note file found in:\n${attemptedPaths}\n\nTry:\n• Notes/ProblemTitle.md\n• Reload after saving paths`);
       }
 
       let codeLoaded = false;
@@ -405,12 +410,13 @@ export default function Page() {
         }
       }
       if (!codeLoaded) {
-        setCodeContent("No solution file found automatically. Add path and click Save Paths.");
+        const attemptedPaths = codeCandidates.slice(0, 3).join(", ");
+        setCodeContent(`No solution file found in:\n${attemptedPaths}\n\nTry:\n• code/ProblemTitle.java\n• Reload after saving paths`);
       }
     };
 
     load();
-  }, [selected?.id, readmeSnippet]);
+  }, [selected?.id, readmeSnippet, state.resources]);
 
   const onLogin = () => {
     if (loginUser === ADMIN_USER && loginPass === ADMIN_PASSWORD) {
@@ -472,8 +478,8 @@ export default function Page() {
       }
     }));
     
-    setSaveStatus("✓ Paths saved! Reload page to auto-load files.");
-    setTimeout(() => setSaveStatus(""), 3000);
+    setSaveStatus(`✓ Paths saved! Loading files...`);
+    setTimeout(() => setSaveStatus(""), 4000);
   };
 
   const exportJson = () => {
