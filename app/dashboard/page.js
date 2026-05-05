@@ -41,7 +41,7 @@ async function saveProgressToGit(completedProblems, completionLog) {
 function convertGitProgressToState(gitProgress, state) {
   if (!gitProgress) return state;
   
-  const { completedProblems, completionLog, resources } = gitProgress;
+  const { completedProblems, completionLog } = gitProgress;
   const progress = { ...state.progress };
   
   // Mark problems as done if they're in completedProblems array
@@ -58,8 +58,7 @@ function convertGitProgressToState(gitProgress, state) {
   return {
     ...state,
     progress,
-    completionLog,
-    resources: resources || {}
+    completionLog
   };
 }
 
@@ -70,8 +69,7 @@ function convertStateToGitProgress(state) {
   
   return {
     completedProblems,
-    completionLog: state.completionLog,
-    resources: state.resources || {}
+    completionLog: state.completionLog
   };
 }
 
@@ -97,7 +95,6 @@ function defaultProgress() {
 function normalizeState(raw) {
   const base = {
     progress: defaultProgress(),
-    resources: {},
     completionLog: [],
     selectedProblemId: db.problems[0]?.id || null
   };
@@ -125,7 +122,6 @@ function normalizeState(raw) {
 
   return {
     progress,
-    resources: raw.resources || {},
     completionLog: Array.isArray(raw.completionLog) ? raw.completionLog : [],
     selectedProblemId: raw.selectedProblemId || base.selectedProblemId
   };
@@ -233,15 +229,12 @@ export default function Page() {
   const [readmeText, setReadmeText] = useState("");
   const [noteContent, setNoteContent] = useState("No note file loaded.");
   const [codeContent, setCodeContent] = useState("No solution file loaded.");
-  const [notePathInput, setNotePathInput] = useState("");
-  const [codePathInput, setCodePathInput] = useState("");
 
   const [difficulty, setDifficulty] = useState("");
   const [iteration, setIteration] = useState("");
   const [topic, setTopic] = useState("");
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
-  const [saveStatus, setSaveStatus] = useState("");
 
   useEffect(() => {
     const auth = sessionStorage.getItem(AUTH_KEY) === "1";
@@ -355,9 +348,6 @@ export default function Page() {
 
   useEffect(() => {
     if (!selected) return;
-    const map = state.resources[selected.id] || {};
-    setNotePathInput(map.notePath || "");
-    setCodePathInput(map.codePath || "");
 
     const load = async () => {
       const linked = extractLinkedFiles(readmeSnippet);
@@ -365,7 +355,6 @@ export default function Page() {
       const pascal = pascalCase(selected.title);
 
       const noteCandidates = [
-        map.notePath,
         ...linked.filter((p) => /\.md$/i.test(p)),
         `Notes/${pascal}.md`,
         `Notes/${slug}.md`,
@@ -376,7 +365,6 @@ export default function Page() {
       ].filter(Boolean);
 
       const codeCandidates = [
-        map.codePath,
         ...linked.filter((p) => /\.(java|txt)$/i.test(p)),
         `code/${pascal}.java`,
         `code/${slug}.java`,
@@ -390,33 +378,31 @@ export default function Page() {
       for (const p of noteCandidates) {
         const data = await fetchApi(`/api/file?path=${encodeURIComponent(p)}`);
         if (data?.ok) {
-          setNoteContent(`Path: ${p}\n\n${data.content}`);
+          setNoteContent(data.content);
           noteLoaded = true;
           break;
         }
       }
       if (!noteLoaded) {
-        const attemptedPaths = noteCandidates.slice(0, 3).join(", ");
-        setNoteContent(`No note file found in:\n${attemptedPaths}\n\nTry:\n• Notes/ProblemTitle.md\n• Reload after saving paths`);
+        setNoteContent("No detailed note has been published for this problem yet.");
       }
 
       let codeLoaded = false;
       for (const p of codeCandidates) {
         const data = await fetchApi(`/api/file?path=${encodeURIComponent(p)}`);
         if (data?.ok) {
-          setCodeContent(`Path: ${p}\n\n${data.content}`);
+          setCodeContent(data.content);
           codeLoaded = true;
           break;
         }
       }
       if (!codeLoaded) {
-        const attemptedPaths = codeCandidates.slice(0, 3).join(", ");
-        setCodeContent(`No solution file found in:\n${attemptedPaths}\n\nTry:\n• code/ProblemTitle.java\n• Reload after saving paths`);
+        setCodeContent("No solution code has been published for this problem yet.");
       }
     };
 
     load();
-  }, [selected?.id, readmeSnippet, state.resources]);
+  }, [selected, readmeSnippet]);
 
   const onLogin = () => {
     if (loginUser === ADMIN_USER && loginPass === ADMIN_PASSWORD) {
@@ -458,28 +444,6 @@ export default function Page() {
 
       return { ...prev, progress: updated, completionLog: log };
     });
-  };
-
-  const savePaths = () => {
-    if (!isAdmin) {
-      setShowLogin(true);
-      return;
-    }
-    if (!selected) return;
-    
-    const notePath = notePathInput.trim();
-    const codePath = codePathInput.trim();
-    
-    setState((prev) => ({
-      ...prev,
-      resources: {
-        ...prev.resources,
-        [selected.id]: { notePath, codePath }
-      }
-    }));
-    
-    setSaveStatus(`✓ Paths saved! Loading files...`);
-    setTimeout(() => setSaveStatus(""), 4000);
   };
 
   const exportJson = () => {
@@ -705,18 +669,6 @@ export default function Page() {
             <pre>{codeContent}</pre>
           </section>
 
-          <section>
-            <h5>Map Files (Admin)</h5>
-            <div style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: "10px" }}>
-              Format: Relative paths from project root.
-              <br />
-              Examples: <code>Notes/FastPower.md</code>, <code>code/FastPower.java</code>
-            </div>
-            <input value={notePathInput} onChange={(e) => setNotePathInput(e.target.value)} placeholder="Notes/ProblemTitle.md" />
-            <input value={codePathInput} onChange={(e) => setCodePathInput(e.target.value)} placeholder="code/ProblemTitle.java" />
-            <button className="btn ghost" onClick={savePaths} disabled={!isAdmin}>Save Paths</button>
-            {saveStatus && <div style={{ color: "var(--green)", marginTop: "8px", fontSize: "0.9rem" }}>{saveStatus}</div>}
-          </section>
         </aside>
       </section>
 

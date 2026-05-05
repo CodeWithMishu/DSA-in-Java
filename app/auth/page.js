@@ -173,7 +173,7 @@ export default function AuthPage() {
           <h3>Why create an account?</h3>
           <ul>
             <li>✓ Track your DSA progress across all devices</li>
-            <li>✓ Sync completion with file mappings</li>
+            <li>✓ Keep completion progress synced</li>
             <li>✓ View your study streak and velocity</li>
             <li>✓ Access your custom notes and solutions</li>
             <li>✓ Compare stats with other learners</li>

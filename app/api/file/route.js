@@ -25,8 +25,8 @@ export async function GET(request) {
     }
 
     const normalized = path.normalize(raw);
-    const root = /* turbopackIgnore: true */ process.cwd();
-    const absolute = path.join(root, normalized);
+    const root = process.cwd();
+    const absolute = path.join(/* turbopackIgnore: true */ process.cwd(), normalized);
 
     if (!absolute.startsWith(root)) {
       return Response.json({ ok: false, message: "Path traversal blocked" }, { status: 400 });
