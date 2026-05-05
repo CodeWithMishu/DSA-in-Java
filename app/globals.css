@@ -1,0 +1,407 @@
+:root {
+  --bg: #090d17;
+  --panel: #121a2a;
+  --line: #2a3752;
+  --text: #eef3ff;
+  --muted: #9fafcd;
+  --gold: #d4af37;
+  --gold-soft: #f2dfa7;
+  --green: #57d98d;
+  --orange: #f2b44c;
+  --red: #f07171;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Manrope, system-ui, sans-serif;
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(212, 175, 55, 0.18), transparent 62%),
+    radial-gradient(700px 380px at 90% -15%, rgba(108, 161, 255, 0.14), transparent 60%),
+    linear-gradient(180deg, #070b14 0%, #0d1422 100%);
+}
+
+a {
+  color: var(--gold-soft);
+}
+
+.page {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(19, 27, 44, 0.95), rgba(14, 21, 35, 0.95));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
+}
+
+.hero {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.hero p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.chips {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chips span {
+  border: 1px solid var(--line);
+  background: #17233a;
+  border-radius: 999px;
+  color: var(--gold-soft);
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  font-weight: 700;
+}
+
+.adminBox .status {
+  font-weight: 700;
+  color: var(--gold-soft);
+  margin-bottom: 10px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: linear-gradient(135deg, #e0c474, #c79e37);
+  border: none;
+  color: #13110a;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn.ghost {
+  background: #23314d;
+  color: #d9e6ff;
+  border: 1px solid #354864;
+}
+
+.btn.danger {
+  background: linear-gradient(135deg, #f38f8f, #e36464);
+  color: #2b0808;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fileBtn input {
+  display: none;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stats.difficulty {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stat {
+  padding: 12px;
+}
+
+.stat h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.6px;
+}
+
+.stat div {
+  margin-top: 6px;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.stat small {
+  color: var(--muted);
+}
+
+.bar {
+  margin-top: 7px;
+  background: #1a253d;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.bar span {
+  height: 100%;
+  display: block;
+  background: linear-gradient(90deg, #d4af37, #f3df9d);
+}
+
+.stat.easy { border-left: 3px solid var(--green); }
+.stat.medium { border-left: 3px solid var(--orange); }
+.stat.hard { border-left: 3px solid var(--red); }
+
+.chartCard {
+  padding: 12px;
+}
+
+.chartCard h3 {
+  margin: 0 0 10px;
+}
+
+.topicChart {
+  display: grid;
+  gap: 8px;
+}
+
+.topicRow {
+  display: grid;
+  grid-template-columns: 180px 1fr 70px;
+  gap: 10px;
+  align-items: center;
+}
+
+.topicName,
+.topicVal {
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.topicBar {
+  height: 10px;
+  border-radius: 999px;
+  background: #1c2943;
+  overflow: hidden;
+}
+
+.topicBar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #f3df9d);
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 12px;
+}
+
+.listPanel,
+.detailPanel {
+  padding: 12px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.filters select,
+.filters input,
+.detailPanel input,
+.login input {
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid #334664;
+  background: #0e1729;
+  color: var(--text);
+  padding: 9px;
+}
+
+.iterHead {
+  margin: 8px 0;
+  border: 1px solid #2c3a55;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+
+.problemGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 9px;
+}
+
+.problem {
+  border: 1px solid #324362;
+  border-radius: 11px;
+  padding: 10px;
+  background: #121d31;
+  cursor: pointer;
+}
+
+.problem.selected {
+  outline: 1px solid var(--gold);
+}
+
+.problem h4 {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+}
+
+.problem .meta {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 7px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.actions button {
+  border: 1px solid #32445f;
+  background: #0d1524;
+  color: #d8e5ff;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.actions button.active {
+  border-color: var(--gold);
+  background: #2b250f;
+  color: var(--gold-soft);
+}
+
+.detailPanel {
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+}
+
+.detailPanel h3,
+.detailPanel h4,
+.detailPanel h5 {
+  margin: 0 0 8px;
+}
+
+.detailMeta {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-bottom: 10px;
+}
+
+.detailPanel section {
+  margin-top: 10px;
+}
+
+.detailPanel pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 240px;
+  border: 1px solid #2f3f5a;
+  border-radius: 9px;
+  background: #0b1221;
+  color: #dce8ff;
+  padding: 9px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 14, 0.75);
+  display: grid;
+  place-items: center;
+  z-index: 40;
+}
+
+.login {
+  width: min(420px, 95vw);
+  padding: 14px;
+}
+
+.login h3 {
+  margin: 0 0 10px;
+}
+
+.login input {
+  margin-bottom: 8px;
+}
+
+.error {
+  color: #ff9a9a;
+  min-height: 18px;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1200px) {
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .detailPanel {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 12px;
+  }
+
+  .stats,
+  .stats.difficulty,
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .topicRow {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,12 +1,121 @@
-# DSA Notes — Index
+# 🚀 DSA Prep — 3-Iteration Mastery Plan
 
-This file is a single-file index of short DSA problem notes. We'll add and organize problems here gradually — first entry is the Sieve (primes from 1 to N).
+A comprehensive **207-problem** DSA preparation roadmap covering **15 core topics** across **3 difficulty levels**.
 
-## Table of contents
+---
+
+## 📊 Overview
+
+### Strategy
+**Complete ALL topics at Easy level → repeat ALL topics at Medium → repeat ALL topics at Hard**
+
+This ensures you build intuition before pattern recognition, then master each concept.
+
+### Timeline & Statistics
+
+| Iteration | Difficulty | Problems | Est. Duration | Time/Problem | Pace |
+|-----------|-----------|----------|---------------|--------------|------|
+| **1** 🟢 | Easy | 38 | ~6 weeks | 30–45 min | 1 prob/day |
+| **2** 🟡 | Medium | 131 | ~19 weeks | 45–75 min | 1 prob/day |
+| **3** 🔴 | Hard | 38 | ~6 weeks | 60–120 min | 1 prob/day |
+| **TOTAL** | All | **207** | **~30 weeks** | — | — |
+
+### Topic Order (Same Across All 3 Iterations)
+1. **Math** → 2. **Bit Manipulation** → 3. **Sorting** → 4. **Array** → 5. **Stack & Queue** → 6. **Matrix** → 7. **HashMap** → 8. **Heap** → 9. **Linked List** → 10. **Backtracking** → 11. **Tree** → 12. **Trie** → 13. **Segment Tree** → 14. **Graph** → 15. **DP**
+
+## 📌 Key Tips
+
+✅ **Solve problems in topic order** — don't skip  
+🔄 **Review weak topics** after each iteration  
+⏱ **Stuck >45 min (Easy) / >90 min (Hard)?** Read editorial  
+📝 **Keep a pattern journal** to log insights  
+🎯 **Don't memorise** — aim to recognise patterns  
+🌊 **Work at YOUR pace** — 1, 3, 5+ problems per session  
+
+## 🔗 Interactive Tools
+
+- **[📊 Dashboard](dashboard.html)** ← Open this for visual progress tracking!
+- **[📋 Full Problem List](#all-problems)** ← See all 207 problems below
+
+## 🌐 Next.js Dashboard (Vercel Ready)
+
+This repo now includes a production-ready Next.js app with:
+
+- JSON database file: `data/problems.json` (all 207 problems)
+- Admin-locked progress updates (viewer mode for others)
+- Topic-wise analytics chart
+- Weekly streak + study velocity metrics
+- Notes/algorithm/solution viewer that reads from:
+  - `README.md`
+  - your local `.md` and `.java` files via API routes
+- Import/Export progress as JSON backup (portable database snapshot)
+
+### Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open: `http://localhost:3000`
+
+### Build for production
+
+```bash
+npm run build
+npm run start
+```
+
+### Deploy on Vercel
+
+1. Import this GitHub repo in Vercel
+2. Framework preset: `Next.js`
+3. Deploy (no external DB env vars required)
+
+### Database design used
+
+#### Master Dataset
+- File: `data/problems.json`
+- Contains all 207 DSA problems with metadata (topic, difficulty, platform, etc.)
+- Static reference, auto-generated from problem definitions
+
+#### Progress Sync (Git-Backed)
+- **Storage**: `progress/latest.json` (version-controlled in git)
+- **Auto-commit**: Every progress update is committed to git with device info and timestamp
+- **Cross-device sync**: Pull latest progress from git before reading (automatic)
+- **Device tracking**: Records which devices have synced (last 5 devices kept)
+- **Timestamp tracking**: Each sync records sync time and last modification
+
+**How it works:**
+1. User marks a problem as "done" on Device A
+2. Frontend POSTs to `/api/progress` with updated state
+3. API saves to `progress/latest.json` and commits: `chore: sync progress [42 problems] via device-abc123 at 2026-05-05T10:30:00Z`
+4. User switches to Device B (different browser/machine)
+5. Frontend GETs `/api/progress`
+6. API runs `git pull` to fetch latest changes, then serves synced state
+7. All devices stay in sync via git!
+
+**Features:**
+- ✅ Version-controlled snapshots in git history
+- ✅ Automatic device identification and tracking
+- ✅ Cross-device sync without external DB
+- ✅ Full audit trail (every change committed)
+- ✅ Portable (entire progress history is in git)
+- ✅ Offline-first (saves locally, syncs when connected)
+
+**Note:** Git commands are non-blocking; if your repo isn't initialized or git is unavailable, the API gracefully falls back and logs the error (progress still saves locally).
+
+#### Backup & Export
+- Click "Export Progress" in dashboard to download JSON snapshot
+- Re-import to restore all progress across sync
+
+---
+
+## Quick Navigation
 
 - [Primes — Sieve of Eratosthenes](#primes--sieve-of-eratosthenes)
+- [Fast Power — Binary Exponentiation](#fast-power--binary-exponentiation)
 - [How to run examples](#how-to-run-examples)
-- [Project organization & next steps](#project-organization--next-steps)
 
 ---
 
@@ -54,9 +163,61 @@ for p = 2; p * p <= N; p++:
 
 ---
 
+## Fast Power — Binary Exponentiation
+
+### Problem
+Calculate X raised to power Y (X^Y) efficiently without computing X * X * X... (Y times).
+
+### Logic
+Use binary representation of the exponent Y. Instead of multiplying X by itself Y times, decompose Y into powers of 2 and compute exponentiations more efficiently.
+
+### Algorithm (high-level)
+1. Start with `result = 1`, `base = X`, `exp = Y`.
+2. While `exp > 0`:
+   - If `exp` is odd, multiply `result` by current `base`.
+   - Square the `base` and halve the `exp` (integer division).
+3. Return `result`.
+
+### Pseudocode
+
+result = 1
+base = X
+exp = Y
+while exp > 0:
+  if exp % 2 == 1:      // if exp is odd
+    result *= base
+  base = base * base    // square the base
+  exp = exp / 2         // halve the exponent
+return result
+
+### Complexity
+- Time: O(log Y) – we halve the exponent in each iteration
+- Space: O(1) – constant extra space
+
+### Java implementation notes
+- See `FastPower.java` for the implementation: [FastPower.java](FastPower.java)
+- Can be extended with modular exponentiation (compute X^Y mod M) for cryptography and competitive programming.
+- Works for integer bases; can be adapted for floating-point bases with slight modifications.
+
+### Example walkthrough
+For X=2, Y=6:
+- Binary of 6 is `110`
+- Iteration 1: exp=6 (even), base becomes 4, exp becomes 3
+- Iteration 2: exp=3 (odd), result becomes 1×4=4, base becomes 16, exp becomes 1  
+- Iteration 3: exp=1 (odd), result becomes 4×16=64, base becomes 256, exp becomes 0
+- Final result: 64 = 2^6 ✓
+
+### Edge cases and tests
+- `X = 2, Y = 0` → result: `1` (any number to power 0 is 1)
+- `X = 2, Y = 1` → result: `2`
+- `X = 2, Y = 10` → result: `1024`
+- `X = 5, Y = 3` → result: `125`
+
+---
+
 ## How to run examples
 
-Compile and run the example program:
+**Sieve of Eratosthenes example:**
 
 ```bash
 javac Primes1ToN.java
@@ -67,6 +228,19 @@ Expected for input `10`:
 
 ```
 2 3 5 7 
+```
+
+**Fast Power example:**
+
+```bash
+javac FastPower.java
+java FastPower
+```
+
+Expected output:
+
+```
+64
 ```
 
 ---

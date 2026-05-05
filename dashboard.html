@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0d14;
+      --bg-soft: #121827;
+      --panel: #111827;
+      --panel-2: #172033;
+      --line: #27314a;
+      --text: #f3f6ff;
+      --muted: #9eabc9;
+      --gold: #d4af37;
+      --gold-soft: #f4de9f;
+      --teal: #2ec4b6;
+      --orange: #ff9f1c;
+      --red: #f06565;
+      --green: #4ddc7a;
+      --shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Manrope", sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(1200px 500px at 20% -10%, rgba(212, 175, 55, 0.16), transparent 60%),
+        radial-gradient(900px 500px at 85% -10%, rgba(46, 196, 182, 0.12), transparent 60%),
+        linear-gradient(180deg, #070a12 0%, #0b101b 100%);
+      padding: 26px;
+    }
+
+    .shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 18px;
+    }
+
+    .hero-card,
+    .panel,
+    .stat,
+    .difficulty-card,
+    .problem-card,
+    .login-card {
+      background: linear-gradient(180deg, rgba(19, 27, 44, 0.95) 0%, rgba(15, 22, 37, 0.95) 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-card {
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -120px;
+      top: -120px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(212, 175, 55, 0.22), transparent 65%);
+    }
+
+    .title {
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: 0.3px;
+      font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 88%;
+    }
+
+    .hero-meta {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      color: var(--gold-soft);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .login-card {
+      padding: 18px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+
+    .auth-status {
+      font-weight: 700;
+      color: var(--gold-soft);
+    }
+
+    .auth-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    select,
+    input {
+      font-family: inherit;
+      font-size: 0.93rem;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #dcc06a 0%, #c49a2a 100%);
+      color: #111;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn.secondary {
+      background: #22304a;
+      color: #dbe7ff;
+      border: 1px solid #32435f;
+    }
+
+    .btn.warn {
+      background: linear-gradient(135deg, #f07f7f 0%, #e65c5c 100%);
+      color: #220909;
+    }
+
+    .btn[disabled] {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #eef4ff;
+      margin-bottom: 8px;
+    }
+
+    .tiny {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #1a243a;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #dcc06a, #d4af37);
+      transition: width 0.25s ease;
+    }
+
+    .difficulty-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .difficulty-card {
+      padding: 16px;
+      border-left: 4px solid transparent;
+    }
+
+    .difficulty-card.easy { border-left-color: var(--green); }
+    .difficulty-card.medium { border-left-color: var(--orange); }
+    .difficulty-card.hard { border-left-color: var(--red); }
+
+    .split {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filters {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .filters label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+      font-weight: 700;
+    }
+
+    .filters select,
+    .filters input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #31405c;
+      background: #0f1524;
+      color: #e8efff;
+      padding: 10px 10px;
+      outline: none;
+    }
+
+    .analytics-grid {
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    }
+
+    .chart-wrap {
+      padding: 16px;
+      min-height: 240px;
+    }
+
+    .chart-wrap canvas {
+      width: 100%;
+      height: 190px;
+      display: block;
+      border-radius: 10px;
+      background: #0f1526;
+      border: 1px solid #283654;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .detail-panel {
+      position: sticky;
+      top: 12px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+    }
+
+    .detail-head {
+      margin-bottom: 10px;
+      border-bottom: 1px solid #2a3652;
+      padding-bottom: 10px;
+    }
+
+    .detail-title {
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .detail-section {
+      margin-top: 14px;
+    }
+
+    .detail-section h3 {
+      font-size: 0.9rem;
+      color: var(--gold-soft);
+      margin-bottom: 8px;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .detail-box {
+      border: 1px solid #2b3b5a;
+      background: #0c1322;
+      border-radius: 10px;
+      padding: 10px;
+      color: #d8e4ff;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .path-grid input {
+      border-radius: 8px;
+      border: 1px solid #314563;
+      background: #0a1220;
+      color: var(--text);
+      padding: 9px;
+      width: 100%;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+
+    .iteration {
+      margin-top: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #28324a;
+      background: linear-gradient(90deg, rgba(26, 35, 58, 0.7), rgba(17, 24, 39, 0.7));
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .iteration h2 {
+      font-size: 1rem;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .problem-card {
+      padding: 14px;
+      border-left: 3px solid #4a5877;
+    }
+
+    .problem-card.done { border-left-color: var(--green); }
+    .problem-card.in-progress { border-left-color: var(--orange); }
+
+    .problem-title {
+      font-size: 0.97rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      font-size: 0.76rem;
+      font-weight: 700;
+      border: 1px solid #364762;
+      color: #c8d7f6;
+      background: #172138;
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+
+    .platform {
+      color: #f3d27b;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(243, 210, 123, 0.55);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .status-btn {
+      border-radius: 8px;
+      border: 1px solid #354762;
+      background: #0d1525;
+      color: #cfddf8;
+      font-weight: 700;
+      padding: 7px 6px;
+      cursor: pointer;
+    }
+
+    .status-btn.active.todo { border-color: #7786a4; background: #1b253a; }
+    .status-btn.active.progress { border-color: #f2b14c; background: #2a2312; color: #ffd47f; }
+    .status-btn.active.done { border-color: #55db86; background: #11281a; color: #8cf0b2; }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px;
+    }
+
+    .locked-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 12, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+    }
+
+    .locked-overlay.open { display: flex; }
+
+    .modal {
+      width: min(450px, 96vw);
+      border-radius: 16px;
+      border: 1px solid #374865;
+      background: #0f1628;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .modal h3 {
+      font-family: "Space Grotesk", sans-serif;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 14px;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid #344663;
+      border-radius: 10px;
+      padding: 10px;
+      background: #0b1221;
+      color: var(--text);
+    }
+
+    .error {
+      color: #ff9a9a;
+      font-size: 0.84rem;
+      min-height: 18px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.84rem;
+      padding-top: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .difficulty-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analytics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-panel {
+        position: static;
+        max-height: none;
+      }
+
+      .filters {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body { padding: 14px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .subtitle { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <article class="hero-card">
+        <h1 class="title">DSA Command Center</h1>
+        <p class="subtitle">
+          Priority-first prep tracker for your sheet roadmap and LeetCode practice.
+          Flexible pace supported: no day lock, solve at your own rhythm.
+        </p>
+        <div class="hero-meta">
+          <span class="pill">Total 207 Problems</span>
+          <span class="pill">15 Topics</span>
+          <span class="pill">Iteration 1 > Iteration 2 > Iteration 3</span>
+          <span class="pill">DB: IndexedDB + localStorage fallback</span>
+        </div>
+      </article>
+
+      <aside class="login-card">
+        <div>
+          <div class="label">Admin Access</div>
+          <div id="authStatus" class="auth-status">Locked (Viewer Mode)</div>
+          <p class="auth-note">
+            Progress updates and settings changes require admin login.
+            View access remains open for revision.
+          </p>
+        </div>
+        <div class="btn-row">
+          <button id="loginBtn" class="btn" type="button">Admin Login</button>
+          <button id="logoutBtn" class="btn secondary" type="button" disabled>Logout</button>
+          <button id="exportBtn" class="btn secondary" type="button">Export JSON</button>
+          <button id="resetBtn" class="btn warn" type="button" disabled>Reset Progress</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid stats-grid">
+      <article class="stat">
+        <div class="label">Total Problems</div>
+        <div class="value" id="totalCount">207</div>
+        <div class="tiny">Auto-loaded from full roadmap</div>
+      </article>
+      <article class="stat">
+        <div class="label">Completed</div>
+        <div class="value" id="doneCount">0</div>
+        <div class="bar"><span id="doneBar" style="width: 0%"></span></div>
+      </article>
+      <article class="stat">
+        <div class="label">In Progress</div>
+        <div class="value" id="progressCount">0</div>
+        <div class="tiny" id="remainingCount">Remaining: 207</div>
+      </article>
+      <article class="stat">
+        <div class="label">Completion Rate</div>
+        <div class="value" id="completionRate">0%</div>
+        <div class="tiny">Measured on all 207 problems</div>
+      </article>
+    </section>
+
+    <section class="grid difficulty-grid">
+      <article class="difficulty-card easy">
+        <div class="split">
+          <div>
+            <div class="label">Easy Count</div>
+            <div class="value" id="easyTotal">38</div>
+          </div>
+          <div class="tiny" id="easyDone">Done 0 / 38</div>
+        </div>
+        <div class="bar"><span id="easyBar" style="width: 0%"></span></div>
+      </article>
+      <article class="difficulty-card medium">
+        <div class="split">
+          <div>
+            <div class="label">Medium Count</div>
+            <div class="value" id="mediumTotal">131</div>
+          </div>
+          <div class="tiny" id="mediumDone">Done 0 / 131</div>
+        </div>
+        <div class="bar"><span id="mediumBar" style="width: 0%"></span></div>
+      </article>
+      <article class="difficulty-card hard">
+        <div class="split">
+          <div>
+            <div class="label">Hard Count</div>
+            <div class="value" id="hardTotal">38</div>
+          </div>
+          <div class="tiny" id="hardDone">Done 0 / 38</div>
+        </div>
+        <div class="bar"><span id="hardBar" style="width: 0%"></span></div>
+      </article>
+    </section>
+
+    <section class="grid analytics-grid">
+      <article class="stat chart-wrap" style="grid-column: span 1;">
+        <div class="label">Topic-wise Analytics</div>
+        <canvas id="topicChart" aria-label="Topic completion chart"></canvas>
+      </article>
+      <article class="stat">
+        <div class="label">Current Streak</div>
+        <div class="value" id="streakDays">0 days</div>
+        <div class="tiny">Days with at least one completed problem</div>
+      </article>
+      <article class="stat">
+        <div class="label">Solved Last 7 Days</div>
+        <div class="value" id="last7Solved">0</div>
+        <div class="tiny">Weekly consistency metric</div>
+      </article>
+      <article class="stat">
+        <div class="label">Study Velocity</div>
+        <div class="value" id="weeklyVelocity">0/wk</div>
+        <div class="tiny">Average solved per week (last 4 weeks)</div>
+      </article>
+    </section>
+
+    <section class="panel filters">
+      <div>
+        <label for="difficultyFilter">Difficulty</label>
+        <select id="difficultyFilter">
+          <option value="">All</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <div>
+        <label for="iterationFilter">Iteration</label>
+        <select id="iterationFilter">
+          <option value="">All</option>
+          <option value="1">Iteration 1</option>
+          <option value="2">Iteration 2</option>
+          <option value="3">Iteration 3</option>
+        </select>
+      </div>
+      <div>
+        <label for="topicFilter">Topic</label>
+        <select id="topicFilter"><option value="">All</option></select>
+      </div>
+      <div>
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter">
+          <option value="">All</option>
+          <option value="not-started">Todo</option>
+          <option value="in-progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div>
+        <label for="searchInput">Search</label>
+        <input id="searchInput" type="text" placeholder="Search problems" />
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel" id="problemPanel">
+        <div id="problemList"></div>
+      </section>
+
+      <aside class="panel detail-panel" id="detailPanel">
+        <div class="detail-head">
+          <div class="label">Problem Detail</div>
+          <div id="detailTitle" class="detail-title">Select a problem to view algorithm, notes, and solution.</div>
+          <div class="tiny" id="detailMeta">Viewer mode can inspect notes; admin can save file mappings.</div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Notes/Algorithm (from README.md)</h3>
+          <div id="readmeSnippet" class="detail-box">No problem selected.</div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Detailed Notes File (.md)</h3>
+          <div id="notesContent" class="detail-box">No note file loaded.</div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Solution File (.java/.txt)</h3>
+          <div id="solutionContent" class="detail-box">No solution file loaded.</div>
+        </div>
+
+        <div class="detail-section">
+          <h3>File Mapping (admin)</h3>
+          <div class="path-grid">
+            <input id="notePathInput" type="text" placeholder="notes/FastPower.md" />
+            <input id="codePathInput" type="text" placeholder="FastPower.java" />
+            <div class="btn-row">
+              <button id="savePathsBtn" class="btn secondary" type="button" disabled>Save Paths</button>
+              <button id="reloadPathsBtn" class="btn secondary" type="button">Reload</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <p class="footer-note">Revision first. Pattern recognition over memorization.</p>
+  </main>
+
+  <div class="locked-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal">
+      <h3 id="loginTitle">Admin Login</h3>
+      <p>Enter credentials to modify progress or settings.</p>
+      <div class="field">
+        <label for="usernameInput">Username</label>
+        <input id="usernameInput" type="text" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label for="passwordInput">Password</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" />
+      </div>
+      <div id="loginError" class="error"></div>
+      <div class="btn-row">
+        <button id="submitLoginBtn" class="btn" type="button">Login</button>
+        <button id="cancelLoginBtn" class="btn secondary" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_USER = "codewithmishu";
+    const ADMIN_PASSWORD = "Mishu@2005";
+    const DB_NAME = "dsa_command_center";
+    const DB_VERSION = 1;
+    const STORE_NAME = "app_state";
+    const FALLBACK_KEY = "dsa_command_center_state";
+    const AUTH_KEY = "dsa_admin_auth";
+
+    const easyRows = [
+      "Math|Find all primes from 1 to N (Sieve of Eratosthenes)|GFG",
+      "Math|Given a number check if it is prime|GFG",
+      "Math|Calculate X^Y in log(Y) time (Fast Power)|LC 50",
+      "Math|Find all prime factors of a number N|GFG",
+      "Math|Calculate NCR value for given N and R|GFG",
+      "Bit Manipulation|Single Number|LC 136",
+      "Bit Manipulation|Hamming Distance|LC 461",
+      "Bit Manipulation|Counting Bits|LC 338",
+      "Bit Manipulation|Majority Element (Moore's Voting / Bit)|LC 169",
+      "Sorting|Implement Selection Sort|GFG / Self",
+      "Sorting|Implement Bubble Sort|GFG / Self",
+      "Sorting|Implement Insertion Sort|GFG / Self",
+      "Sorting|Implement Counting Sort|GFG / Self",
+      "Sorting|Implement Bucket Sort|GFG / Self",
+      "Sorting|Implement Radix Sort|GFG / Self",
+      "Array|Two Sum|LC 1",
+      "Array|Best Time to Buy and Sell Stock|LC 121",
+      "Array|Sort an Array in Wave Form|GFG",
+      "Array|Chocolate Distribution Problem|GFG",
+      "Stack & Queue|Valid Parentheses|LC 20",
+      "Stack & Queue|Implement Stack using Queues|LC 225",
+      "Stack & Queue|Implement Queue using Stacks|LC 232",
+      "Stack & Queue|Next Greater Element I|LC 496",
+      "HashMap|First Unique Character in a String|LC 387",
+      "HashMap|Design HashMap|LC 706",
+      "Heap|Kth Largest Element in a Stream|LC 703",
+      "Linked List|Reverse Linked List|LC 206",
+      "Linked List|Palindrome Linked List|LC 234",
+      "Linked List|Delete Node in a Linked List|LC 237",
+      "Linked List|Middle of the Linked List|LC 876",
+      "Linked List|Linked List Cycle|LC 141",
+      "Tree|Invert Binary Tree|LC 226",
+      "Tree|Symmetric Tree|LC 101",
+      "Tree|Diameter of Binary Tree|LC 543",
+      "Tree|Cousins in Binary Tree|LC 993",
+      "Trie|Count Strings With Given Prefix|GFG",
+      "Segment Tree|Range Sum Query (Segment Tree)|LC 307",
+      "DP|Moore's Voting Algorithm (Majority Element)|LC 169"
+    ];
+
+    const mediumRows = [
+      "Math|Catalan Number variations (all class problems)|GFG / Notes",
+      "Math|Unique Binary Search Trees (Catalan application)|LC 96",
+      "Bit Manipulation|Single Number II|LC 137",
+      "Bit Manipulation|Bitwise AND of Numbers Range|LC 201",
+      "Bit Manipulation|Decode XORed Permutation|LC 1734",
+      "Sorting|Implement Merge Sort|GFG / Self",
+      "Sorting|Implement Quick Sort|GFG / Self",
+      "Sorting|Quick Select (Kth Smallest/Largest)|LC 215",
+      "Array|Sort Colors (Dutch National Flag)|LC 75",
+      "Array|Largest Sum Contiguous Subarray (Kadane's)|LC 53",
+      "Array|Merge 2 Sorted Arrays Without Extra Space|GFG",
+      "Array|Merge Intervals|LC 56",
+      "Array|Next Permutation|LC 31",
+      "Array|Counting Inversions (Merge Sort based)|GFG",
+      "Array|Kth Largest Element in an Array|LC 215",
+      "Array|Search in Rotated Sorted Array|LC 33",
+      "Array|3Sum|LC 15",
+      "Array|4Sum|LC 18",
+      "Array|4Sum II|LC 454",
+      "Array|Range Sum Query (Prefix Sum)|LC 303",
+      "Array|Sort a K-Sorted Array|GFG",
+      "Array|Elements appearing more than N/K times|GFG / LC 229",
+      "Array|Range Addition|LC 370",
+      "Stack & Queue|Find Next Smaller Element|GFG",
+      "Stack & Queue|Find Previous Greater Element|GFG",
+      "Stack & Queue|Find Previous Smaller Element|GFG",
+      "Stack & Queue|Reverse a Stack Without Extra Space|GFG",
+      "Stack & Queue|Car Fleet 1|LC 853",
+      "Stack & Queue|Design Stack with GetMin in O(1)|LC 155",
+      "Stack & Queue|LRU Cache|LC 146",
+      "Stack & Queue|Rotting Oranges (BFS)|LC 994",
+      "Stack & Queue|Basic Calculator II|LC 227",
+      "Matrix|Spiral Matrix|LC 54",
+      "Matrix|Rotate Image|LC 48",
+      "Matrix|Kth Smallest in Row-Col Sorted Matrix|LC 378",
+      "HashMap|Valid Sudoku|LC 36",
+      "HashMap|Longest Substring Without Repeating Characters|LC 3",
+      "HashMap|Group Anagrams|LC 49",
+      "HashMap|Top K Frequent Elements|LC 347",
+      "HashMap|Find All Anagrams in a String|LC 438",
+      "HashMap|Sort Characters By Frequency|LC 451",
+      "HashMap|Contiguous Array (equal 0s and 1s)|LC 525",
+      "HashMap|Subarray Sum Equals K|LC 560",
+      "HashMap|Insert Delete GetRandom O(1)|LC 380",
+      "HashMap|Copy List with Random Pointer|LC 138",
+      "Heap|Top K Frequent Elements (Heap)|LC 347",
+      "Heap|Sort Characters By Frequency (Heap)|LC 451",
+      "Heap|Process Tasks Using Servers|LC 1882",
+      "Linked List|Linked List Cycle II|LC 142",
+      "Linked List|Add Two Numbers|LC 2",
+      "Linked List|Reverse Linked List II|LC 92",
+      "Linked List|Next Greater Node In Linked List|LC 1019",
+      "Linked List|Delete the Middle Node of a Linked List|LC 2095",
+      "Linked List|Maximum Twin Sum of a Linked List|LC 2130",
+      "Linked List|Flatten Binary Tree to Linked List|LC 114",
+      "Backtracking|Generate Parentheses|LC 22",
+      "Backtracking|Letter Combinations of a Phone Number|LC 17",
+      "Backtracking|Permutations|LC 46",
+      "Backtracking|Combination Sum|LC 39",
+      "Backtracking|Word Search|LC 79",
+      "Backtracking|The Maze|LC 490",
+      "Tree|Binary Tree Level Order Traversal|LC 102",
+      "Tree|Binary Tree Right Side View|LC 199",
+      "Tree|Binary Tree Zigzag Level Order Traversal|LC 103",
+      "Tree|Count Good Nodes in Binary Tree|LC 1448",
+      "Tree|Validate Binary Search Tree|LC 98",
+      "Tree|Construct Binary Tree from Preorder & Inorder|LC 105",
+      "Tree|Construct BST from Preorder Traversal|LC 1008",
+      "Tree|Balance a Binary Search Tree|LC 1382",
+      "Tree|Inorder Successor in BST|LC 285",
+      "Tree|Lowest Common Ancestor of Binary Tree|LC 236",
+      "Tree|Lowest Common Ancestor III|LC 1650",
+      "Tree|All Nodes Distance K in Binary Tree|LC 863",
+      "Tree|Flatten Binary Tree to Linked List (Tree)|LC 114",
+      "Tree|Unique Binary Search Trees|LC 96",
+      "Tree|Convert BST to Sorted Doubly Linked List|LC 426",
+      "Trie|Implement Trie (Prefix Tree)|LC 208",
+      "Trie|Design Add and Search Words Data Structure|LC 211",
+      "Trie|Word Break|LC 139",
+      "Trie|Implement Trie II|LC 2135",
+      "Trie|Maximum XOR of 2 Numbers in an Array|LC 421",
+      "Segment Tree|Range Max/Min Query|GFG",
+      "Segment Tree|Range XOR Query|GFG",
+      "Segment Tree|Range GCD Query|GFG",
+      "Segment Tree|Range LCM Query|GFG",
+      "Segment Tree|Count of Zeroes in a Given Range|GFG",
+      "Graph|All Paths From Source to Target|LC 797",
+      "Graph|Shortest Path to Get Food|LC 1730",
+      "Graph|Detonate the Maximum Bombs|LC 2101",
+      "Graph|Number of Provinces (DSUF)|LC 547",
+      "Graph|Graph Valid Tree|LC 261",
+      "Graph|Course Schedule (Cycle Detection)|LC 207",
+      "Graph|Course Schedule II (Topological Sort)|LC 210",
+      "Graph|Parallel Courses|LC 1136",
+      "Graph|Is Graph Bipartite?|LC 785",
+      "Graph|Possible Bipartition|LC 886",
+      "Graph|Find City With Smallest Neighbors (Floyd-Warshall)|LC 1334",
+      "Graph|Course Schedule IV (Floyd-Warshall)|LC 1462",
+      "Graph|Path with Maximum Probability (Dijkstra)|LC 1514",
+      "Graph|Network Delay Time (Dijkstra)|LC 743",
+      "Graph|Path With Minimum Effort (Dijkstra/BinSearch)|LC 1631",
+      "Graph|Min Cost to Connect All Points (Prim/Kruskal)|LC 1584",
+      "Graph|Connecting Cities With Minimum Cost (MST)|LC 1135",
+      "Graph|Maximum Number of Accepted Invitations|LC 1820",
+      "DP|Coin Change|LC 322",
+      "DP|Coin Change 2|LC 518",
+      "DP|Longest Palindromic Substring|LC 5",
+      "DP|Palindromic Substrings|LC 647",
+      "DP|Longest Increasing Subsequence|LC 300",
+      "DP|Number of Longest Increasing Subsequence|LC 673",
+      "DP|Target Sum|LC 494",
+      "DP|One Edit Distance|LC 161",
+      "DP|Edit Distance|LC 72",
+      "DP|Unique Paths|LC 62",
+      "DP|Unique Paths II|LC 63",
+      "DP|Minimum Path Sum|LC 64",
+      "DP|Maximal Square|LC 221",
+      "DP|Minimum Score Triangulation of Polygon|LC 1039",
+      "DP|Partition Equal Subset Sum|LC 416",
+      "DP|Partition to K Equal Sum Subsets|LC 698",
+      "DP|Matchsticks to Square|LC 473",
+      "DP|Ones and Zeroes|LC 474",
+      "DP|Longest Common Subsequence|LC 1143",
+      "DP|Longest Palindromic Subsequence|LC 516",
+      "DP|Maximum Length of Repeated Subarray|LC 718",
+      "DP|Delete Operation for Two Strings|LC 583",
+      "DP|Egg Drop With 2 Eggs and N Floors|LC 1884",
+      "DP|Rolling Hash / Rabin-Karp|GFG",
+      "DP|KMP Pattern Matching|LC 28",
+      "DP|Reservoir Sampling|LC 382",
+      "DP|Rand() Randomizer|LC 384"
+    ];
+
+    const hardRows = [
+      "Array|Trapping Rain Water|LC 42",
+      "Array|Median of Two Sorted Arrays|LC 4",
+      "Array|Closest Subsequence Sum|LC 1755",
+      "Stack & Queue|Largest Rectangle in Histogram|LC 84",
+      "Stack & Queue|Basic Calculator|LC 224",
+      "Matrix|Median in Row-Wise Sorted Matrix|GFG",
+      "HashMap|Longest Duplicate Substring|LC 1044",
+      "HashMap|Maximal Rectangle|LC 85",
+      "Heap|Find Median from Data Stream|LC 295",
+      "Heap|Sliding Window Maximum|LC 239",
+      "Heap|Merge k Sorted Lists|LC 23",
+      "Linked List|Reverse Nodes in k-Group|LC 25",
+      "Backtracking|N-Queens|LC 51",
+      "Backtracking|N-Queens II|LC 52",
+      "Backtracking|Word Search II|LC 212",
+      "Backtracking|Word Break II|LC 140",
+      "Backtracking|Regular Expression Matching|LC 10",
+      "Backtracking|Remove Invalid Parentheses|LC 301",
+      "Backtracking|Sudoku Solver|LC 37",
+      "Tree|Vertical Order Traversal of a Binary Tree|LC 987",
+      "Tree|Serialize and Deserialize Binary Tree|LC 297",
+      "Tree|Binary Tree Maximum Path Sum|LC 124",
+      "Trie|Word Break II (Trie)|LC 140",
+      "Segment Tree|Find Kth Zero in Array (Segment Tree)|GFG",
+      "Graph|Couples Holding Hands (DSUF)|LC 765",
+      "Graph|Remove Max Edges to Keep Graph Fully Traversable|LC 1579",
+      "Graph|Critical Connections in a Network (Bridges)|LC 1192",
+      "Graph|Minimum Degree of a Connected Trio|LC 1761",
+      "Graph|Alien Dictionary (Topological Sort)|LC 269",
+      "DP|Largest Rectangle in Histogram (DP/Stack)|LC 84",
+      "DP|Maximal Rectangle (DP)|LC 85",
+      "DP|Dungeon Game|LC 174",
+      "DP|Burst Balloons|LC 312",
+      "DP|Shortest Common Supersequence|LC 1092",
+      "DP|Minimum Operations to Make Array K-Increasing|LC 2111",
+      "DP|Super Egg Drop|LC 887",
+      "DP|Number of Ways to Wear Different Hats|LC 1434",
+      "DP|Travelling Salesman Problem (Bitmask DP)|GFG"
+    ];
+
+    let db = null;
+    let progress = {};
+    let resources = {};
+    let completionLog = [];
+    let selectedProblemId = null;
+    let readmeCache = null;
+    let isAdmin = sessionStorage.getItem(AUTH_KEY) === "1";
+
+    function buildProblems() {
+      const items = [];
+      let id = 1;
+
+      function parseRows(rows, difficulty, iteration) {
+        for (const row of rows) {
+          const [topic, title, platformRaw] = row.split("|");
+          const platform = (platformRaw || "").trim();
+          let url = "https://www.geeksforgeeks.org/";
+          const lcMatch = platform.match(/LC\s*(\d+)/i);
+          if (lcMatch) {
+            const qid = lcMatch[1];
+            url = `https://leetcode.com/problemset/?search=${qid}`;
+          } else if (platform.toUpperCase().includes("GFG")) {
+            url = "https://www.geeksforgeeks.org/";
+          }
+
+          items.push({
+            id,
+            topic: topic.trim(),
+            title: title.trim(),
+            difficulty,
+            iteration,
+            platform: platform || "GFG",
+            url
+          });
+          id += 1;
+        }
+      }
+
+      parseRows(easyRows, "easy", 1);
+      parseRows(mediumRows, "medium", 2);
+      parseRows(hardRows, "hard", 3);
+      return items;
+    }
+
+    const problems = buildProblems();
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = event => {
+          const database = event.target.result;
+          if (!database.objectStoreNames.contains(STORE_NAME)) {
+            database.createObjectStore(STORE_NAME, { keyPath: "key" });
+          }
+        };
+        request.onsuccess = () => {
+          db = request.result;
+          resolve(db);
+        };
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function dbGetState() {
+      return new Promise(resolve => {
+        if (!db) {
+          resolve(null);
+          return;
+        }
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.get("state");
+        req.onsuccess = () => resolve(req.result ? req.result.value : null);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function dbSetState(value) {
+      return new Promise(resolve => {
+        if (!db) {
+          resolve(false);
+          return;
+        }
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.put({ key: "state", value });
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => resolve(false);
+      });
+    }
+
+    function defaultProgress() {
+      const obj = {};
+      for (const p of problems) {
+        obj[p.id] = {
+          status: "not-started",
+          updatedAt: null,
+          completedAt: null
+        };
+      }
+      return obj;
+    }
+
+    function normalizeProgress(raw) {
+      const normalized = {};
+      for (const p of problems) {
+        const item = raw ? raw[p.id] : null;
+        if (typeof item === "string") {
+          normalized[p.id] = {
+            status: item,
+            updatedAt: null,
+            completedAt: item === "done" ? new Date().toISOString() : null
+          };
+        } else if (item && typeof item === "object") {
+          normalized[p.id] = {
+            status: item.status || "not-started",
+            updatedAt: item.updatedAt || null,
+            completedAt: item.completedAt || null
+          };
+        } else {
+          normalized[p.id] = {
+            status: "not-started",
+            updatedAt: null,
+            completedAt: null
+          };
+        }
+      }
+      return normalized;
+    }
+
+    function getStatus(problemId) {
+      return progress[problemId] ? progress[problemId].status : "not-started";
+    }
+
+    async function loadState() {
+      let state = null;
+      try {
+        await openDb();
+        state = await dbGetState();
+      } catch (_) {
+        state = null;
+      }
+
+      if (!state) {
+        const fallback = localStorage.getItem(FALLBACK_KEY);
+        if (fallback) {
+          try {
+            state = JSON.parse(fallback);
+          } catch (_) {
+            state = null;
+          }
+        }
+      }
+
+      if (!state || !state.progress) {
+        progress = defaultProgress();
+        resources = {};
+        completionLog = [];
+        await persistState();
+      } else {
+        progress = normalizeProgress(state.progress);
+        resources = state.resources || {};
+        completionLog = Array.isArray(state.completionLog) ? state.completionLog : [];
+        selectedProblemId = state.selectedProblemId || null;
+      }
+
+      if (!selectedProblemId && problems.length) {
+        selectedProblemId = problems[0].id;
+      }
+    }
+
+    async function persistState() {
+      const state = {
+        progress,
+        resources,
+        completionLog,
+        selectedProblemId,
+        updatedAt: new Date().toISOString()
+      };
+      const ok = await dbSetState(state);
+      if (!ok) {
+        localStorage.setItem(FALLBACK_KEY, JSON.stringify(state));
+      }
+    }
+
+    function bindEvents() {
+      document.getElementById("difficultyFilter").addEventListener("change", renderProblems);
+      document.getElementById("iterationFilter").addEventListener("change", renderProblems);
+      document.getElementById("topicFilter").addEventListener("change", renderProblems);
+      document.getElementById("statusFilter").addEventListener("change", renderProblems);
+      document.getElementById("searchInput").addEventListener("input", renderProblems);
+
+      document.getElementById("loginBtn").addEventListener("click", () => openLogin(true));
+      document.getElementById("logoutBtn").addEventListener("click", logout);
+      document.getElementById("submitLoginBtn").addEventListener("click", submitLogin);
+      document.getElementById("cancelLoginBtn").addEventListener("click", () => openLogin(false));
+      document.getElementById("exportBtn").addEventListener("click", exportState);
+      document.getElementById("resetBtn").addEventListener("click", resetProgress);
+      document.getElementById("savePathsBtn").addEventListener("click", saveResourcePaths);
+      document.getElementById("reloadPathsBtn").addEventListener("click", () => loadProblemDetails(selectedProblemId));
+
+      document.getElementById("loginOverlay").addEventListener("click", event => {
+        if (event.target.id === "loginOverlay") {
+          openLogin(false);
+        }
+      });
+    }
+
+    function openLogin(show) {
+      const overlay = document.getElementById("loginOverlay");
+      overlay.classList.toggle("open", show);
+      if (show) {
+        document.getElementById("usernameInput").focus();
+      } else {
+        document.getElementById("loginError").textContent = "";
+      }
+    }
+
+    function submitLogin() {
+      const username = document.getElementById("usernameInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      const errorEl = document.getElementById("loginError");
+
+      if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
+        isAdmin = true;
+        sessionStorage.setItem(AUTH_KEY, "1");
+        document.getElementById("usernameInput").value = "";
+        document.getElementById("passwordInput").value = "";
+        openLogin(false);
+        updateAuthUI();
+        renderProblems();
+      } else {
+        errorEl.textContent = "Invalid username or password.";
+      }
+    }
+
+    function logout() {
+      isAdmin = false;
+      sessionStorage.removeItem(AUTH_KEY);
+      updateAuthUI();
+      renderProblems();
+    }
+
+    function updateAuthUI() {
+      document.getElementById("authStatus").textContent = isAdmin ? "Unlocked (Admin Mode)" : "Locked (Viewer Mode)";
+      document.getElementById("logoutBtn").disabled = !isAdmin;
+      document.getElementById("resetBtn").disabled = !isAdmin;
+      document.getElementById("savePathsBtn").disabled = !isAdmin;
+    }
+
+    function buildTopicFilter() {
+      const topicSelect = document.getElementById("topicFilter");
+      const topics = [...new Set(problems.map(p => p.topic))].sort((a, b) => a.localeCompare(b));
+      const current = topicSelect.value;
+      topicSelect.innerHTML = '<option value="">All</option>';
+      for (const t of topics) {
+        const option = document.createElement("option");
+        option.value = t;
+        option.textContent = t;
+        topicSelect.appendChild(option);
+      }
+      topicSelect.value = current;
+    }
+
+    function getFilteredProblems() {
+      const diff = document.getElementById("difficultyFilter").value;
+      const iter = document.getElementById("iterationFilter").value;
+      const topic = document.getElementById("topicFilter").value;
+      const status = document.getElementById("statusFilter").value;
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      return problems.filter(p => {
+        if (diff && p.difficulty !== diff) return false;
+        if (iter && String(p.iteration) !== iter) return false;
+        if (topic && p.topic !== topic) return false;
+        if (status && getStatus(p.id) !== status) return false;
+        if (query && !`${p.title} ${p.topic} ${p.platform}`.toLowerCase().includes(query)) return false;
+        return true;
+      });
+    }
+
+    function pct(done, total) {
+      if (!total) return 0;
+      return Math.round((done / total) * 100);
+    }
+
+    function updateStats() {
+      const total = problems.length;
+      const done = problems.filter(p => getStatus(p.id) === "done").length;
+      const inProg = problems.filter(p => getStatus(p.id) === "in-progress").length;
+      const remaining = total - done;
+
+      document.getElementById("totalCount").textContent = String(total);
+      document.getElementById("doneCount").textContent = String(done);
+      document.getElementById("progressCount").textContent = String(inProg);
+      document.getElementById("remainingCount").textContent = `Remaining: ${remaining}`;
+      document.getElementById("completionRate").textContent = `${pct(done, total)}%`;
+      document.getElementById("doneBar").style.width = `${pct(done, total)}%`;
+
+      const byDiff = {
+        easy: problems.filter(p => p.difficulty === "easy"),
+        medium: problems.filter(p => p.difficulty === "medium"),
+        hard: problems.filter(p => p.difficulty === "hard")
+      };
+
+      for (const d of ["easy", "medium", "hard"]) {
+        const totalD = byDiff[d].length;
+        const doneD = byDiff[d].filter(p => getStatus(p.id) === "done").length;
+        document.getElementById(`${d}Total`).textContent = String(totalD);
+        document.getElementById(`${d}Done`).textContent = `Done ${doneD} / ${totalD}`;
+        document.getElementById(`${d}Bar`).style.width = `${pct(doneD, totalD)}%`;
+      }
+
+      updateStreakAndVelocity();
+      drawTopicChart();
+    }
+
+    async function setStatus(problemId, status) {
+      if (!isAdmin) {
+        openLogin(true);
+        return;
+      }
+      const prev = getStatus(problemId);
+      const nowIso = new Date().toISOString();
+      if (!progress[problemId]) {
+        progress[problemId] = { status: "not-started", updatedAt: null, completedAt: null };
+      }
+      progress[problemId].status = status;
+      progress[problemId].updatedAt = nowIso;
+      if (status === "done" && prev !== "done") {
+        progress[problemId].completedAt = nowIso;
+        completionLog.push(nowIso);
+      }
+      await persistState();
+      updateStats();
+      renderProblems();
+    }
+
+    function makeStatusButton(problemId, status, label, klass) {
+      const active = getStatus(problemId) === status ? "active" : "";
+      const disabled = !isAdmin ? "disabled" : "";
+      return `<button class="status-btn ${active} ${klass}" ${disabled} data-id="${problemId}" data-status="${status}">${label}</button>`;
+    }
+
+    function difficultyLabel(d) {
+      if (d === "easy") return "Easy";
+      if (d === "medium") return "Medium";
+      return "Hard";
+    }
+
+    function renderProblems() {
+      const list = getFilteredProblems();
+      const container = document.getElementById("problemList");
+
+      if (!list.length) {
+        container.innerHTML = '<div class="empty">No problems matched your filters.</div>';
+        return;
+      }
+
+      const grouped = { 1: [], 2: [], 3: [] };
+      for (const p of list) grouped[p.iteration].push(p);
+
+      const names = {
+        1: "Iteration 1 - Easy",
+        2: "Iteration 2 - Medium",
+        3: "Iteration 3 - Hard"
+      };
+
+      let html = "";
+      for (const iteration of [1, 2, 3]) {
+        const arr = grouped[iteration];
+        if (!arr.length) continue;
+
+        const done = arr.filter(p => getStatus(p.id) === "done").length;
+        html += `
+          <div class="iteration">
+            <h2>${names[iteration]}</h2>
+            <span class="tiny">${done}/${arr.length} done in current view</span>
+          </div>
+          <div class="problem-grid">
+        `;
+
+        for (const p of arr) {
+          const current = getStatus(p.id);
+          const selected = selectedProblemId === p.id ? "style=\"outline:1px solid #d4af37;\"" : "";
+          html += `
+            <article class="problem-card ${current}" ${selected} data-problem-id="${p.id}">
+              <div class="problem-title">#${p.id} ${p.title}</div>
+              <div class="meta">
+                <span class="tag">${p.topic}</span>
+                <span class="tag">${difficultyLabel(p.difficulty)}</span>
+                <span class="tag">${p.platform}</span>
+                <a class="platform" href="${p.url}" target="_blank" rel="noopener noreferrer">Open</a>
+              </div>
+              <div class="actions">
+                ${makeStatusButton(p.id, "not-started", "Todo", "todo")}
+                ${makeStatusButton(p.id, "in-progress", "Progress", "progress")}
+                ${makeStatusButton(p.id, "done", "Done", "done")}
+              </div>
+            </article>
+          `;
+        }
+
+        html += "</div>";
+      }
+
+      container.innerHTML = html;
+      container.querySelectorAll(".problem-card").forEach(card => {
+        card.addEventListener("click", event => {
+          if (event.target.classList.contains("status-btn") || event.target.classList.contains("platform")) {
+            return;
+          }
+          selectedProblemId = Number(card.dataset.problemId);
+          persistState();
+          renderProblems();
+          loadProblemDetails(selectedProblemId);
+        });
+      });
+      container.querySelectorAll(".status-btn").forEach(btn => {
+        btn.addEventListener("click", event => {
+          const pid = Number(event.currentTarget.dataset.id);
+          const status = event.currentTarget.dataset.status;
+          setStatus(pid, status);
+        });
+      });
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    async function fetchText(path) {
+      try {
+        const response = await fetch(path, { cache: "no-cache" });
+        if (!response.ok) return null;
+        return await response.text();
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function getReadmeText() {
+      if (readmeCache !== null) return readmeCache;
+      const text = await fetchText("README.md");
+      readmeCache = text || "";
+      return readmeCache;
+    }
+
+    function titleKey(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    }
+
+    function extractReadmeSnippet(readmeText, problem) {
+      if (!readmeText) {
+        return "README.md could not be loaded. If you opened this via file://, run a local server to enable fetch-based loading.";
+      }
+
+      const lines = readmeText.split(/\r?\n/);
+      const target = titleKey(problem.title);
+      const targetParts = target.split(" ").filter(w => w.length > 3);
+      let index = -1;
+
+      for (let i = 0; i < lines.length; i += 1) {
+        const row = titleKey(lines[i]);
+        if (!row) continue;
+        if (row.includes(target)) {
+          index = i;
+          break;
+        }
+        let hit = 0;
+        for (const part of targetParts.slice(0, 5)) {
+          if (row.includes(part)) hit += 1;
+        }
+        if (hit >= 3) {
+          index = i;
+          break;
+        }
+      }
+
+      if (index === -1) {
+        return "No direct section match in README.md yet. Add this problem's notes to README and it will appear here automatically.";
+      }
+
+      let start = index;
+      while (start > 0 && !/^#{2,4}\s+/.test(lines[start])) {
+        start -= 1;
+      }
+
+      let end = index + 1;
+      while (end < lines.length && !(end > start && /^#{2,4}\s+/.test(lines[end]))) {
+        end += 1;
+      }
+
+      const slice = lines.slice(start, Math.min(end, start + 80));
+      return slice.join("\n").trim();
+    }
+
+    function slugify(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    }
+
+    function pascalCase(text) {
+      return text
+        .replace(/[^a-zA-Z0-9 ]+/g, " ")
+        .split(" ")
+        .filter(Boolean)
+        .map(token => token.charAt(0).toUpperCase() + token.slice(1).toLowerCase())
+        .join("");
+    }
+
+    function extractLinkedFiles(snippet) {
+      const list = [];
+      const regex = /\[[^\]]+\]\(([^)]+)\)/g;
+      let match = regex.exec(snippet);
+      while (match) {
+        list.push(match[1]);
+        match = regex.exec(snippet);
+      }
+      return list;
+    }
+
+    async function firstAvailableFile(candidates) {
+      for (const path of candidates) {
+        if (!path) continue;
+        const text = await fetchText(path);
+        if (text !== null) {
+          return { path, text };
+        }
+      }
+      return null;
+    }
+
+    async function loadProblemDetails(problemId) {
+      const problem = problems.find(p => p.id === problemId);
+      if (!problem) return;
+
+      document.getElementById("detailTitle").textContent = `#${problem.id} ${problem.title}`;
+      document.getElementById("detailMeta").textContent = `${problem.topic} | ${difficultyLabel(problem.difficulty)} | ${problem.platform}`;
+
+      const readmeText = await getReadmeText();
+      const snippet = extractReadmeSnippet(readmeText, problem);
+      document.getElementById("readmeSnippet").textContent = snippet;
+
+      const saved = resources[problemId] || {};
+      document.getElementById("notePathInput").value = saved.notePath || "";
+      document.getElementById("codePathInput").value = saved.codePath || "";
+
+      const linked = extractLinkedFiles(snippet);
+      const slug = slugify(problem.title);
+      const pascal = pascalCase(problem.title);
+
+      const noteCandidates = [
+        saved.notePath,
+        ...linked.filter(path => /\.md$/i.test(path)),
+        `notes/${pascal}.md`,
+        `notes/${slug}.md`,
+        `${pascal}.md`,
+        `${slug}.md`
+      ];
+
+      const codeCandidates = [
+        saved.codePath,
+        ...linked.filter(path => /\.(java|txt)$/i.test(path)),
+        `${pascal}.java`,
+        `solutions/${pascal}.java`,
+        `src/${pascal}.java`,
+        `${slug}.java`
+      ];
+
+      const noteFile = await firstAvailableFile(noteCandidates);
+      const codeFile = await firstAvailableFile(codeCandidates);
+
+      document.getElementById("notesContent").textContent = noteFile
+        ? `Path: ${noteFile.path}\n\n${noteFile.text}`
+        : "No note file found automatically. Add path and click Save Paths. Example: notes/FastPower.md";
+
+      document.getElementById("solutionContent").textContent = codeFile
+        ? `Path: ${codeFile.path}\n\n${codeFile.text}`
+        : "No solution file found automatically. Add path and click Save Paths. Example: FastPower.java";
+    }
+
+    async function saveResourcePaths() {
+      if (!isAdmin) {
+        openLogin(true);
+        return;
+      }
+      if (!selectedProblemId) return;
+      const notePath = document.getElementById("notePathInput").value.trim();
+      const codePath = document.getElementById("codePathInput").value.trim();
+      resources[selectedProblemId] = { notePath, codePath };
+      await persistState();
+      await loadProblemDetails(selectedProblemId);
+    }
+
+    function toDayKey(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function updateStreakAndVelocity() {
+      const dates = completionLog
+        .map(iso => new Date(iso))
+        .filter(d => !Number.isNaN(d.getTime()));
+
+      const daySet = new Set(dates.map(toDayKey));
+      const today = new Date();
+      let streak = 0;
+
+      for (let offset = 0; offset < 3650; offset += 1) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - offset);
+        if (daySet.has(toDayKey(d))) {
+          streak += 1;
+        } else {
+          break;
+        }
+      }
+
+      const nowMs = Date.now();
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+      const twentyEightDaysMs = 28 * 24 * 60 * 60 * 1000;
+
+      const last7 = dates.filter(d => nowMs - d.getTime() <= sevenDaysMs).length;
+      const last28 = dates.filter(d => nowMs - d.getTime() <= twentyEightDaysMs).length;
+      const velocity = (last28 / 4).toFixed(1);
+
+      document.getElementById("streakDays").textContent = `${streak} days`;
+      document.getElementById("last7Solved").textContent = String(last7);
+      document.getElementById("weeklyVelocity").textContent = `${velocity}/wk`;
+    }
+
+    function drawTopicChart() {
+      const canvas = document.getElementById("topicChart");
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(320, Math.floor(rect.width));
+      const height = Math.max(190, Math.floor(rect.height));
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#0f1526";
+      ctx.fillRect(0, 0, width, height);
+
+      const topics = [...new Set(problems.map(p => p.topic))];
+      const rows = topics.map(topic => {
+        const all = problems.filter(p => p.topic === topic);
+        const done = all.filter(p => getStatus(p.id) === "done").length;
+        const ratio = all.length ? done / all.length : 0;
+        return { topic, done, total: all.length, ratio };
+      }).sort((a, b) => b.ratio - a.ratio);
+
+      const maxBars = Math.min(rows.length, 10);
+      const topRows = rows.slice(0, maxBars);
+      const padX = 12;
+      const padY = 14;
+      const rowH = (height - padY * 2) / maxBars;
+      const barMaxW = width - 170;
+
+      ctx.font = "12px Manrope";
+      for (let i = 0; i < topRows.length; i += 1) {
+        const item = topRows[i];
+        const y = padY + i * rowH + rowH * 0.2;
+        const bw = Math.max(2, barMaxW * item.ratio);
+
+        ctx.fillStyle = "#203052";
+        ctx.fillRect(120, y, barMaxW, rowH * 0.55);
+
+        ctx.fillStyle = "#d4af37";
+        ctx.fillRect(120, y, bw, rowH * 0.55);
+
+        ctx.fillStyle = "#dbe7ff";
+        ctx.fillText(item.topic, padX, y + rowH * 0.38);
+        ctx.fillStyle = "#f4de9f";
+        ctx.fillText(`${item.done}/${item.total}`, width - 40, y + rowH * 0.38);
+      }
+    }
+
+    function exportState() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        totalProblems: problems.length,
+        progress,
+        resources,
+        completionLog,
+        selectedProblemId
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `dsa-progress-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function resetProgress() {
+      if (!isAdmin) {
+        openLogin(true);
+        return;
+      }
+      const ok = confirm("Reset all 207 problem statuses?");
+      if (!ok) return;
+      progress = defaultProgress();
+      completionLog = [];
+      await persistState();
+      updateStats();
+      renderProblems();
+      loadProblemDetails(selectedProblemId);
+    }
+
+    async function init() {
+      bindEvents();
+      buildTopicFilter();
+      await loadState();
+      updateAuthUI();
+      updateStats();
+      renderProblems();
+      await loadProblemDetails(selectedProblemId);
+      window.addEventListener("resize", drawTopicChart);
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
