@@ -1,4 +1,4 @@
-
+// Find all prime factors of a number N
 import java.util.Scanner;
 import java.util.ArrayList; // Step 1: Import the ArrayList class
 

@@ -1,9 +1,0 @@
-{
-  "buildCommand": "npm run build",
-  "framework": "nextjs",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "env": {
-    "NODE_ENV": "production"
-  }
-}

@@ -1,3 +1,4 @@
+// Calculate X^Y in log(Y) time (Fast Power)
 public class FastPower{
     public static void main(String[] args){
         int x=2;
