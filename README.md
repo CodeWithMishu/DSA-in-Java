@@ -1,23 +1,37 @@
 # DSA in Java - Problem Solutions & Notes
 
-A collection of fundamental Data Structures and Algorithms problems solved in Java, with detailed explanations and optimization techniques.
+A comprehensive collection of Data Structures and Algorithms problems solved in Java, organized by topic and difficulty level with detailed explanations, algorithms, and optimization techniques.
 
 ---
 
 ## 📑 Table of Contents (Quick Navigation)
 
-1. [Primes1ToN](#1-primes1ton---sieve-of-eratosthenes)
-2. [PrimeNumber](#2-primenumber---primality-test)
-3. [FastPower](#3-fastpower---exponentiation-by-squaring)
-4. [PrimeFactor](#4-primefactor---prime-factorization)
-5. [Key Patterns & Techniques](#key-patterns--techniques)
-6. [Complexity Analysis Cheatsheet](#complexity-analysis-cheatsheet)
+### 🔢 Maths
+- **Easy**
+  1. [Primes1ToN](#maths--easy--1-primes1ton---sieve-of-eratosthenes)
+  2. [PrimeNumber](#maths--easy--2-primenumber---primality-test)
+  3. [FastPower](#maths--easy--3-fastpower---exponentiation-by-squaring)
+  4. [PrimeFactor](#maths--easy--4-primefactor---prime-factorization)
+- **Medium** *(Coming Soon)*
+- **Hard** *(Coming Soon)*
+
+### 📚 Additional Resources
+- [Key Patterns & Techniques](#key-patterns--techniques)
+- [Complexity Analysis Cheatsheet](#complexity-analysis-cheatsheet)
 
 ---
 
-## 1. Primes1ToN - Sieve of Eratosthenes
+## 🔢 MATHS
 
-**📄 Source Code:** [Primes1ToN.java](Primes1ToN.java)
+### 📊 EASY
+
+---
+
+## Maths › Easy › 1. Primes1ToN - Sieve of Eratosthenes
+
+**📄 Source Code:** [Maths/Easy/Primes1ToN.java](Maths/Easy/Primes1ToN.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(N log log N) | **💾 Space Complexity:** O(N)
 
 ### 📋 Problem
 Find all prime numbers from 1 to N efficiently.
@@ -36,7 +50,7 @@ Find all prime numbers from 1 to N efficiently.
 - Only needs to check up to √N in outer loop
 - Inner loop starts from p² (all smaller multiples already marked)
 
-### 📊 Complexity
+### 📊 Complexity Analysis
 - **Time:** O(N log log N) - Much faster than checking each number individually
 - **Space:** O(N) - Boolean array of size N+1
 
@@ -76,9 +90,11 @@ Result: Primes are [2,3,5,7,11,13,17,19,23,29]
 
 ---
 
-## 2. PrimeNumber - Primality Test
+## Maths › Easy › 2. PrimeNumber - Primality Test
 
-**📄 Source Code:** [PrimeNumber.java](PrimeNumber.java)
+**📄 Source Code:** [Maths/Easy/PrimeNumber.java](Maths/Easy/PrimeNumber.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(√N) | **💾 Space Complexity:** O(1)
 
 ### 📋 Problem
 Check if a given number is prime or not.
@@ -95,7 +111,7 @@ Check if a given number is prime or not.
 - So if no divisor ≤ √N exists, N is definitely prime
 - Example: To check if 36 is prime, we only need to check up to 6
 
-### 📊 Complexity
+### 📊 Complexity Analysis
 - **Time:** O(√N) - We iterate from 2 to √N
 - **Space:** O(1) - Single boolean variable
 
@@ -117,9 +133,11 @@ return true;  // No divisor found, it's prime
 
 ---
 
-## 3. FastPower - Exponentiation by Squaring
+## Maths › Easy › 3. FastPower - Exponentiation by Squaring
 
-**📄 Source Code:** [FastPower.java](FastPower.java)
+**📄 Source Code:** [Maths/Easy/FastPower.java](Maths/Easy/FastPower.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(log Y) | **💾 Space Complexity:** O(1)
 
 ### 📋 Problem
 Calculate X^Y (X raised to power Y) efficiently.
@@ -144,7 +162,7 @@ while Y >= 1:
 return result
 ```
 
-### 📊 Complexity
+### 📊 Complexity Analysis
 - **Time:** O(log Y) - We divide Y by 2 in each iteration
 - **Space:** O(1) - Only a few variables used
 
@@ -167,9 +185,11 @@ while(y >= 1) {
 
 ---
 
-## 4. PrimeFactor - Prime Factorization
+## Maths › Easy › 4. PrimeFactor - Prime Factorization
 
-**📄 Source Code:** [PrimeFactor.java](PrimeFactor.java)
+**📄 Source Code:** [Maths/Easy/PrimeFactor.java](Maths/Easy/PrimeFactor.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(√N) | **💾 Space Complexity:** O(log N)
 
 ### 📋 Problem
 Find all prime factors of a number N and return them in a list.
@@ -191,7 +211,7 @@ if N > 1:
     add N to factors
 ```
 
-### 📊 Complexity
+### 📊 Complexity Analysis
 - **Time:** O(√N) in best case; O(log N) on average
 - **Space:** O(log N) - For storing prime factors
 
@@ -359,4 +379,22 @@ Try solving these variations:
 
 ---
 
+## 📁 Project Structure
+
+```
+DSA-in-Java/
+├── Maths/
+│   ├── Easy/
+│   │   ├── FastPower.java
+│   │   ├── PrimeFactor.java
+│   │   ├── PrimeNumber.java
+│   │   └── Primes1ToN.java
+│   ├── Medium/
+│   └── Hard/
+└── README.md (this file)
+```
+
+---
+
 *Last Updated: May 7, 2026*
+*Organization: Topic > Difficulty > Problem*
