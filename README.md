@@ -12,6 +12,7 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
   2. [PrimeNumber](#maths--easy--2-primenumber---primality-test)
   3. [FastPower](#maths--easy--3-fastpower---exponentiation-by-squaring)
   4. [PrimeFactor](#maths--easy--4-primefactor---prime-factorization)
+  5. [NCR](#maths--easy--5-ncr---binomial-coefficient)
 - **Medium** *(Coming Soon)*
 - **Hard** *(Coming Soon)*
 
@@ -249,6 +250,79 @@ Result: [2, 2, 2, 3] (which is 2³ × 3)
 
 ---
 
+## Maths › Easy › 5. NCR - Binomial Coefficient
+
+**📄 Source Code:** [Maths/Easy/NCR.java](Maths/Easy/NCR.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(min(r, n-r)) | **💾 Space Complexity:** O(1)
+
+### 📋 Problem
+Calculate the binomial coefficient C(n,r), also known as "n choose r" - the number of ways to choose r items from n items without regard to order.
+
+### 🔍 Approach
+**Optimized Iterative Computation**
+
+Instead of computing n! / (r! × (n-r)!), we use an iterative approach:
+- Swap r with (n-r) if r > n-r to minimize iterations
+- Multiply result by (n-i+1) and divide by i for each iteration
+- This avoids computing large factorials
+
+### 💡 Why It Works
+- **Mathematical Property:** C(n,r) = C(n, n-r), so we use the smaller value
+- **Optimization:** Computing with min(r, n-r) reduces iterations significantly
+  - Example: C(10, 8) = C(10, 2), so we only iterate 2 times instead of 8
+- **Division after multiplication:** Multiplying first, then dividing prevents intermediate overflow
+
+### 📊 Complexity Analysis
+- **Time:** O(min(r, n-r)) - Loop runs only for the smaller value
+- **Space:** O(1) - Only a few variables needed
+
+### 💎 Key Tips & Insights
+- **Symmetry optimization:** Always use min(r, n-r) to reduce iterations
+  - Example: C(100, 97) becomes C(100, 3)
+- **Order matters:** Multiply before divide to avoid precision issues: `result = result * (n-i+1) / i`
+- **Constraint:** Validate that n ≥ r, otherwise it's impossible
+- **Integer division:** Works because result is always an integer (mathematical property of binomial coefficients)
+- **Use cases:** Combinations, probability, competitive programming
+- **Overflow caution:** For large n and r, intermediate products might overflow
+
+### 📝 Code Pattern
+```java
+if(n < r) {
+    System.out.println("n must be greater than or equal to r");
+    return;
+}
+r = Math.min(r, n - r);  // Optimize: use smaller value
+int result = 1;
+for(int i = 1; i <= r; i++) {
+    result = result * (n - i + 1) / i;  // Multiply then divide
+}
+System.out.println(result);
+```
+
+### 🎯 Example Walkthroughs
+
+**Example 1: C(5, 3)**
+```
+n=5, r=3
+r = min(3, 5-3) = min(3, 2) = 2
+Iteration 1: result = 1 * (5-1+1) / 1 = 1 * 5 / 1 = 5
+Iteration 2: result = 5 * (5-2+1) / 2 = 5 * 4 / 2 = 10
+Result: 10 (choosing 3 from 5 is 10 ways)
+```
+
+**Example 2: C(10, 7)**
+```
+n=10, r=7
+r = min(7, 10-7) = min(7, 3) = 3 (optimization!)
+Iteration 1: result = 1 * (10-1+1) / 1 = 1 * 10 / 1 = 10
+Iteration 2: result = 10 * (10-2+1) / 2 = 10 * 9 / 2 = 45
+Iteration 3: result = 45 * (10-3+1) / 3 = 45 * 8 / 3 = 120
+Result: 120
+```
+
+---
+
 ## Key Patterns & Techniques
 
 ### 🎯 Pattern 1: Check Up to √N
@@ -346,6 +420,7 @@ for(int j = p * p; j <= n; j += p) {
 | **PrimeNumber** | O(√N) | O(1) | Single number test | Not efficient for multiple tests |
 | **PrimeFactor** | O(√N) avg | O(log N) | Prime factorization | Slow for very large numbers |
 | **Primes1ToN** | O(N log log N) | O(N) | All primes up to N | Memory usage for very large N |
+| **NCR** | O(min(r, n-r)) | O(1) | Binomial coefficients | Overflow for very large results |
 
 ---
 
@@ -386,6 +461,7 @@ DSA-in-Java/
 ├── Maths/
 │   ├── Easy/
 │   │   ├── FastPower.java
+│   │   ├── NCR.java
 │   │   ├── PrimeFactor.java
 │   │   ├── PrimeNumber.java
 │   │   └── Primes1ToN.java
