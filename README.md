@@ -18,7 +18,8 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
 
 ### 🧮 Bit Manipulation
 - **Easy**
-    1. [SingleNumber](#bit-manipulation--easy--1-singlenumber---find-the-element-appearing-once)
+    1. [HammingDistance](#bit-manipulation--easy--1-hammingdistance---hamming-distance-between-two-integers)
+    2. [SingleNumber](#bit-manipulation--easy--2-singlenumber---find-the-element-appearing-once)
 
 ### 📚 Additional Resources
 - [Key Patterns & Techniques](#key-patterns--techniques)
@@ -325,9 +326,39 @@ Iteration 3: result = 45 * (10-3+1) / 3 = 45 * 8 / 3 = 120
 Result: 120
 ```
 
----
 
 ## Key Patterns & Techniques
+ 
+---
+
+## 🔧 BIT MANIPULATION
+
+### 📊 EASY
+
+## Bit Manipulation › Easy › 1. HammingDistance - Hamming distance between two integers
+
+**📄 Source Code:** [Bit Manipulation/HammingDistance.java](Bit%20Manipulation/HammingDistance.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(1) (O(#bits)) | **💾 Space Complexity:** O(1)
+
+### 📋 Problem
+Given two integers `x` and `y`, compute the Hamming distance — the number of bit positions in which they differ.
+
+### 🔍 Approach
+- XOR `x` and `y`, then count set bits in the result. Use `Integer.bitCount()` or Kernighan's loop.
+- Formula: `distance = Integer.bitCount(x ^ y);`
+
+### 📝 Code Pattern
+```java
+int xor = x ^ y;
+int distance = Integer.bitCount(xor);
+```
+
+### 🎯 Example
+```
+x = 1 (01), y = 4 (100) → x ^ y = 101 → distance = 2
+```
+
 
 ### 🎯 Pattern 1: Check Up to √N
 Used in: PrimeNumber, PrimeFactor, Primes1ToN
