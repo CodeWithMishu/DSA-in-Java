@@ -16,6 +16,10 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
 - **Medium** *(Coming Soon)*
 - **Hard** *(Coming Soon)*
 
+### 🧮 Bit Manipulation
+- **Easy**
+    1. [SingleNumber](#bit-manipulation--easy--1-singlenumber---find-the-element-appearing-once)
+
 ### 📚 Additional Resources
 - [Key Patterns & Techniques](#key-patterns--techniques)
 - [Complexity Analysis Cheatsheet](#complexity-analysis-cheatsheet)
@@ -453,6 +457,34 @@ Try solving these variations:
 4. **Primes1ToN:** Find twin primes, cousin primes, sexy primes up to N
 
 ---
+
+## 🧮 BIT MANIPULATION
+
+### ⚙️ EASY
+
+## Bit Manipulation › Easy › 1. SingleNumber - Find the element appearing once
+
+**📄 Source Code:** [Bit%20Manipulation/Easy/SingleNumber.java](Bit%20Manipulation/Easy/SingleNumber.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(N) | **💾 Space Complexity:** O(1)
+
+### 📋 Problem
+Given an integer array where every element appears twice except for one element which appears only once, find that single element.
+
+### 🔍 Approach
+Use XOR properties: `a ^ a = 0` and `a ^ 0 = a`. XOR all numbers; paired elements cancel out leaving the single element.
+
+### 📊 Complexity Analysis
+- **Time:** O(N) — single pass through the array
+- **Space:** O(1) — constant extra space
+
+### 📝 Code Pattern
+```java
+int single = 0;
+for(int x : nums) single ^= x; // paired values cancel, remaining is the single number
+System.out.println(single);
+```
+
 
 ## 📁 Project Structure
 
