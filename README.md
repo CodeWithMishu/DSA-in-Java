@@ -18,8 +18,9 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
 
 ### 🧮 Bit Manipulation
 - **Easy**
-    1. [HammingDistance](#bit-manipulation--easy--1-hammingdistance---hamming-distance-between-two-integers)
-    2. [SingleNumber](#bit-manipulation--easy--2-singlenumber---find-the-element-appearing-once)
+    1. [HammingDistance](Bit%20Manipulation/HammingDistance.java)
+    2. [SingleNumber](Bit%20Manipulation/Easy/SingleNumber.java)
+    3. [CountingBits](Bit%20Manipulation/Easy/CountingBits.java)
 
 ### 📚 Additional Resources
 - [Key Patterns & Techniques](#key-patterns--techniques)
@@ -27,9 +28,9 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
 
 ---
 
-## 🔢 MATHS
+## 🔢 Maths
 
-### 📊 EASY
+### 📊 Easy
 
 ---
 
@@ -331,9 +332,9 @@ Result: 120
  
 ---
 
-## 🔧 BIT MANIPULATION
+## 🔧 Bit Manipulation
 
-### 📊 EASY
+### 📊 Easy
 
 ## Bit Manipulation › Easy › 1. HammingDistance - Hamming distance between two integers
 
