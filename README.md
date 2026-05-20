@@ -4,6 +4,31 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
 
 ---
 
+## 🚀 Quick Start
+
+- **Requirements:** Java 8+ installed and available on `PATH`.
+- **Compile a single file:**
+
+```bash
+javac path/to/File.java
+```
+
+- **Run a compiled class (from the same directory):**
+
+```bash
+java ClassName
+```
+
+- **Example (run the Majority Element example):**
+
+```bash
+cd "Bit Manipulation/Easy"
+javac MajorityElement1.java
+java MajorityElement1
+```
+
+---
+
 ## 📑 Table of Contents (Quick Navigation)
 
 ### 🔢 Maths
@@ -21,6 +46,7 @@ A comprehensive collection of Data Structures and Algorithms problems solved in 
     1. [HammingDistance](Bit%20Manipulation/HammingDistance.java)
     2. [SingleNumber](Bit%20Manipulation/Easy/SingleNumber.java)
     3. [CountingBits](Bit%20Manipulation/Easy/CountingBits.java)
+    4. [MajorityElement](Bit%20Manipulation/Easy/MajorityElement1.java)
 
 ### 📚 Additional Resources
 - [Key Patterns & Techniques](#key-patterns--techniques)
@@ -373,6 +399,44 @@ for(int i = 2; i * i <= n; i++) { ... }
 ```
 
 **Why?** Avoids expensive square root calculation and reduces iterations significantly.
+
+---
+
+## Bit Manipulation › Easy › 4. Majority Element — Moore's Voting Algorithm
+
+**📄 Source Code:** [Bit Manipulation/Easy/MajorityElement1.java](Bit%20Manipulation/Easy/MajorityElement1.java)
+
+**📈 Difficulty:** Easy | **⏱️ Time Complexity:** O(n) | **💾 Space Complexity:** O(1)
+
+### 📋 Problem
+Given an array of size n, find the element that appears more than ⌊n/2⌋ times (the majority element). If no such element exists, report accordingly.
+
+### 🔍 Approach
+Moore's Voting Algorithm (two-phase):
+- Phase 1 — Find a candidate: iterate and maintain a `count` and `candidate`. When `count` is 0, set `candidate` to current element; increment when equal, decrement otherwise.
+- Phase 2 — Verify: recount occurrences of `candidate` to confirm it appears > n/2 times.
+
+### 💡 Why it Works
+- The first phase effectively cancels out pairs of different elements, leaving a potential majority candidate (if one exists).
+
+### 📝 Code Pattern
+```java
+int candidate = -1, count = 0;
+for (int x : nums) {
+    if (count == 0) { candidate = x; count = 1; }
+    else if (candidate == x) count++;
+    else count--;
+}
+// verify
+count = 0;
+for (int x : nums) if (x == candidate) count++;
+if (count > nums.length / 2) return candidate;
+else return -1; // or indicate no majority
+```
+
+### 🎯 Example
+`nums = [3,3,2,2,2,2,3]` → candidate becomes `2`, verification yields 4 occurrences (> 7/2), so majority = `2`.
+
 
 ---
 
