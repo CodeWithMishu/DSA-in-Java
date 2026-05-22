@@ -16,6 +16,7 @@ public class PrimeFactor {
         // Handle edge case for numbers less than 2
         if (num < 2) {
             System.out.println("No prime factors for " + num);
+            sc.close();
             return;
         }
 
