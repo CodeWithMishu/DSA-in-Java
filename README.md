@@ -1,7 +1,7 @@
 DSA-in-Java
 ===========
 
-A small collection of Data Structures & Algorithms implementations in Java, organized by topic and difficulty.
+A small collection of Data Structures & Algorithms implementations in Java, organized by topic and difficulty. The examples are simple, self-contained Java classes intended for learning and practice.
 
 Project structure
 -----------------
@@ -9,22 +9,32 @@ Project structure
 - Maths/: math-related algorithms and utilities.
 - Sorting/: sorting algorithms organized by difficulty.
 
-Each folder contains Java source files with simple standalone examples you can compile and run.
+Each folder contains standalone Java source files. Most files include a `main` method so you can compile and run them directly.
 
 Quick start
 -----------
-1. Compile a file:
+Compile a single example (run from the repository root):
 
-   javac Sorting/Easy/BubbleSort.java
+```
+javac Sorting/Easy/InsertionSort.java
+```
 
-2. Run the class from the workspace root:
+Run the compiled class (note the package-like path uses dots for nested folders):
 
-   java Sorting.Easy.BubbleSort
+```
+java Sorting.Easy.InsertionSort
+```
 
-Notes
------
-- Files are plain Java classes with `main` methods for demonstration; no build system is required.
-- Feel free to add more algorithms or improve existing implementations. Please keep files small and focused.
+Tips
+----
+- Files are top-level classes with names that match their file name (e.g., `InsertionSort.java` contains `public class InsertionSort`).
+- There are no Java packages used; run classes from the repository root so the JVM finds them by folder structure.
+- Most examples are O(n^2) simple implementations for teaching — expect small inputs.
+
+Contributing
+------------
+- Add new algorithms under the appropriate folder and keep each file focused with a single `main` demo.
+- Follow the existing naming convention: `Category/Difficulty/AlgorithmName.java` and ensure the class name matches the file name.
 
 License
 -------
