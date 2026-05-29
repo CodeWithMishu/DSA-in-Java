@@ -1,41 +1,42 @@
-DSA-in-Java
-===========
+# DSA in Java
 
-A small collection of Data Structures & Algorithms implementations in Java, organized by topic and difficulty. The examples are simple, self-contained Java classes intended for learning and practice.
+A curated collection of Data Structures and Algorithms (DSA) implementations in Java. This repository contains simple, well-organized example solutions intended for learning, practice, and reference.
 
-Project structure
------------------
-- Bit Manipulation/: implementations and problems related to bit operations.
-- Maths/: math-related algorithms and utilities.
-- Sorting/: sorting algorithms organized by difficulty.
+## Repository Structure
 
-Each folder contains standalone Java source files. Most files include a `main` method so you can compile and run them directly.
+- Bit Manipulation/: bitwise algorithm examples (e.g. `HammingDistance.java`).
+- Maths/: mathematical algorithms and number theory helpers.
+- Sorting/: classic sorting algorithm implementations (Easy/ folder contains straightforward examples).
 
-Quick start
------------
-Compile a single example (run from the repository root):
+Each subfolder may contain further difficulty-based organization (e.g. `Easy/`).
 
-```
-javac Sorting/Easy/InsertionSort.java
-```
+## How to compile and run
 
-Run the compiled class (note the package-like path uses dots for nested folders):
+Open a terminal at the repository root and navigate to the example folder you want to run. Example:
 
-```
-java Sorting.Easy.InsertionSort
+```bash
+cd Sorting/Easy
+javac CountingSort.java
+java CountingSort
 ```
 
-Tips
-----
-- Files are top-level classes with names that match their file name (e.g., `InsertionSort.java` contains `public class InsertionSort`).
-- There are no Java packages used; run classes from the repository root so the JVM finds them by folder structure.
-- Most examples are O(n^2) simple implementations for teaching — expect small inputs.
+To compile all Java files in the repository (from root):
 
-Contributing
-------------
-- Add new algorithms under the appropriate folder and keep each file focused with a single `main` demo.
-- Follow the existing naming convention: `Category/Difficulty/AlgorithmName.java` and ensure the class name matches the file name.
+```bash
+find . -name "*.java" -print | xargs javac
+```
 
-License
--------
-This repository is provided for learning and practice. No license specified.
+Notes:
+- Examples are written using the default package (no package declaration). Run classes from their directories or adjust classpaths accordingly.
+
+## Contributing
+
+Contributions, fixes, and improvements are welcome. Please:
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Submit a pull request with a clear description of changes.
+
+## License
+
+This repository is provided for educational purposes. No license specified — contact the maintainer if you need one.
